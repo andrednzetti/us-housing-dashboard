@@ -132,6 +132,9 @@
   function render() {
     if (!DATA || !DATA.series) return;
 
+    // Hide error banner on successful load
+    document.getElementById("error-banner").style.display = "none";
+
     // Update timestamps
     const ts = DATA.last_updated || "";
     const pretty = ts ? new Date(ts).toLocaleString("pt-BR", { dateStyle: "long", timeStyle: "short" }) : "—";
