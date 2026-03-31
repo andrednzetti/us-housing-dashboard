@@ -286,9 +286,7 @@ def main():
 
     if error_count > 0:
         print("[WARNING] Some series failed. Check logs above.")
-        if error_count == len(SERIES):
-            print("[FATAL] All series failed!")
-            sys.exit(1)
+        sys.exit(1 if error_count == len(SERIES) else 0)
 
 
 if __name__ == "__main__":

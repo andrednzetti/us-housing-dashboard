@@ -24,7 +24,7 @@
     supply:    ["HOUST", "PERMIT", "COMPUTSA", "MSACSR"],
     demand:    ["HSN1F", "EXHOSLUSM495S", "PHSI", "ACTLISCOUUS"],
     prices:    ["CSUSHPISA", "USSTHPI", "MSPUS"],
-    sentiment: ["USHMI", "WPU081", "RMI"],
+    sentiment: ["NAHBMMI", "WPU081", "RMI"],
   };
 
   // Series where "going up" is negative (bad) for the housing market
@@ -34,7 +34,7 @@
 
   // Reference lines for specific series
   const REF_LINES = {
-    USHMI:        { value: 50, label: "Neutro (50)", color: "rgba(212,168,67,.5)", dash: [6, 4] },
+    NAHBMMI:      { value: 50, label: "Neutro (50)", color: "rgba(212,168,67,.5)", dash: [6, 4] },
     RMI:          { value: 50, label: "Neutro (50)", color: "rgba(212,168,67,.5)", dash: [6, 4] },
     MORTGAGE30US: { value: 7,  label: "7%",          color: "rgba(224,92,92,.4)",  dash: [6, 4] },
     MORTGAGE15US: { value: 6,  label: "6%",          color: "rgba(224,92,92,.4)",  dash: [6, 4] },
@@ -52,12 +52,12 @@
     MSACSR:         "Months Supply indica quantos meses levaria para vender todo o estoque atual ao ritmo corrente. Acima de 6 = mercado favoravel ao comprador.",
     HSN1F:          "Vendas de casas novas (single-family). Indicador-chave da demanda por novas construcoes.",
     EXHOSLUSM495S:  "Vendas de casas existentes representam ~90% do mercado. Sensiveis a taxas de juros e estoque disponivel.",
-    PHSI:           "O Pending Home Sales Index mede contratos assinados (nao fechamentos). Indicador antecedente das vendas de casas existentes.",
+    PENNSA:         "O Pending Home Sales Index mede contratos assinados (nao fechamentos). Indicador antecedente das vendas de casas existentes.",
     ACTLISCOUUS:    "Contagem de listings ativos no mercado. Estoque baixo pressiona precos para cima; estoque alto favorece compradores.",
     CSUSHPISA:      "O indice Case-Shiller mede a variacao de precos residenciais nas 20 maiores areas metropolitanas. Referencia global para precos de imoveis nos EUA.",
     USSTHPI:        "O indice FHFA cobre hipotecas conforming (Fannie Mae / Freddie Mac). Cobertura geografica mais ampla que o Case-Shiller.",
     MSPUS:          "Preco mediano de casas vendidas nos EUA. Inclui casas novas e existentes. Menos volatil que a media.",
-    USHMI:          "O HMI reflete a confianca dos construtores. Acima de 50 = mais construtores otimistas que pessimistas.",
+    NAHBMMI:        "O HMI reflete a confianca dos construtores. Acima de 50 = mais construtores otimistas que pessimistas.",
     WPU081:         "O PPI de madeira serrada e um proxy dos custos de construcao. Picos elevam o preco final das casas novas.",
     RMI:            "O Remodeling Market Index mede a atividade de reforma residencial. Acima de 50 indica expansao no setor de reformas.",
   };

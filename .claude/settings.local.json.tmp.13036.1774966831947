@@ -6,8 +6,7 @@
       "Bash(python -c \"import ast; ast.parse\\(open\\(''scripts/fetch_scraped.py''\\).read\\(\\)\\); print\\(''fetch_scraped.py OK''\\)\")",
       "Bash(python -c \"import ast; ast.parse\\(open\\(''scripts/merge_data.py''\\).read\\(\\)\\); print\\(''merge_data.py OK''\\)\")",
       "WebFetch(domain:api.stlouisfed.org)",
-      "WebFetch(domain:fred.stlouisfed.org)",
-      "WebSearch"
+      "WebFetch(domain:fred.stlouisfed.org)"
     ]
   }
 }

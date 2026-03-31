@@ -57,7 +57,7 @@
     CSUSHPISA:      "O indice Case-Shiller mede a variacao de precos residenciais nas 20 maiores areas metropolitanas. Referencia global para precos de imoveis nos EUA.",
     USSTHPI:        "O indice FHFA cobre hipotecas conforming (Fannie Mae / Freddie Mac). Cobertura geografica mais ampla que o Case-Shiller.",
     MSPUS:          "Preco mediano de casas vendidas nos EUA. Inclui casas novas e existentes. Menos volatil que a media.",
-    USHMI:          "O HMI reflete a confianca dos construtores. Acima de 50 = mais construtores otimistas que pessimistas.",
+    NAHBMMI:        "O HMI reflete a confianca dos construtores. Acima de 50 = mais construtores otimistas que pessimistas.",
     WPU081:         "O PPI de madeira serrada e um proxy dos custos de construcao. Picos elevam o preco final das casas novas.",
     RMI:            "O Remodeling Market Index mede a atividade de reforma residencial. Acima de 50 indica expansao no setor de reformas.",
   };
