@@ -1,0 +1,55 @@
+name: Update Housing Indicators Data
+
+on:
+  schedule:
+    - cron: '0 14 * * 2'   # Every Tuesday at 14:00 UTC (11:00 BRT)
+  workflow_dispatch:         # Allow manual execution
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 lxml
+
+      - name: Fetch FRED data
+        run: python scripts/fetch_fred.py
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+
+      - name: Fetch scraped data
+        run: python scripts/fetch_scraped.py
+
+      - name: Merge all data
+        run: python scripts/merge_data.py
+
+      - name: Check for data changes
+        id: check_changes
+        run: |
+          git diff --quiet data/indicators.json 2>/dev/null && echo "changed=false" >> $GITHUB_OUTPUT || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push updated data
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/indicators.json
+          git commit -m "chore: update indicators $(date -u +%Y-%m-%d) [skip ci]"
+          git push
+
+      - name: No changes detected
+        if: steps.check_changes.outputs.changed == 'false'
+        run: echo "No data changes detected, skipping commit."

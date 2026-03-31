@@ -1,0 +1,487 @@
+/* ============================================================
+   US Housing Market Dashboard — Dark Financial Theme
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+/* --- Design Tokens ------------------------------------------ */
+:root {
+  --bg:       #0d1117;
+  --bg2:      #161b22;
+  --bg3:      #21262d;
+  --border:   #30363d;
+  --gold:     #d4a843;
+  --gold-dim: #a07830;
+  --teal:     #3fb9b9;
+  --red:      #e05c5c;
+  --green:    #56d364;
+  --white:    #e6edf3;
+  --muted:    #8b949e;
+  --accent:   #1f6feb;
+  --radius:   8px;
+  --shadow:   0 2px 12px rgba(0,0,0,.35);
+}
+
+/* --- Reset & Base ------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  background: var(--bg);
+  color: var(--white);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+a { color: var(--gold); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* --- Layout ------------------------------------------------- */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* --- Skeleton / Loading ------------------------------------- */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg3) 25%, var(--border) 50%, var(--bg3) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius);
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-card  { height: 140px; }
+.skeleton-chart { height: 360px; }
+
+/* --- Header ------------------------------------------------- */
+.header {
+  padding: 48px 0 32px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+.header h1 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 900;
+}
+.header h1 .accent { color: var(--gold); }
+.header .subtitle {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 8px;
+}
+.header .badge {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 6px 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* --- KPI Cards ---------------------------------------------- */
+.kpi-section { margin-bottom: 48px; }
+
+.group-title {
+  font-size: 1.1rem;
+  color: var(--gold);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.group-title .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: inline-block;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.kpi-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color .2s, transform .15s, box-shadow .2s;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card:hover {
+  border-color: var(--gold-dim);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.kpi-card .name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 500;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kpi-card .value {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+.kpi-card .changes {
+  display: flex;
+  gap: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+}
+.kpi-card .change {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.kpi-card .change .label {
+  color: var(--muted);
+  margin-right: 4px;
+}
+.kpi-card .freq {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--muted);
+  background: var(--bg3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.positive { color: var(--green); }
+.negative { color: var(--red); }
+
+/* --- Chart Sections ----------------------------------------- */
+.chart-section {
+  margin-bottom: 56px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.section-header h2 {
+  font-size: 1.4rem;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+.tab-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color .2s, border-color .2s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: var(--white); }
+.tab-btn.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+/* Chart container */
+.chart-panel {
+  display: none;
+}
+.chart-panel.active {
+  display: block;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.chart-title-block h3 {
+  font-size: 1.1rem;
+  font-family: 'Playfair Display', serif;
+}
+.chart-title-block .chart-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.chart-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.chart-meta .freq-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: var(--bg3);
+  color: var(--teal);
+  border: 1px solid var(--border);
+}
+.chart-meta .source-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+/* Period buttons */
+.period-btns {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+.period-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  padding: 5px 14px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+.period-btn:hover { color: var(--white); border-color: var(--gold-dim); }
+.period-btn.active {
+  background: var(--gold-dim);
+  color: var(--bg);
+  border-color: var(--gold);
+}
+
+/* Chart canvas wrapper */
+.chart-wrapper {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.chart-wrapper canvas {
+  width: 100% !important;
+  max-height: 400px;
+}
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  text-align: center;
+}
+.stat-box .stat-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-family: 'DM Mono', monospace;
+  margin-bottom: 4px;
+}
+.stat-box .stat-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--white);
+}
+
+/* Context block */
+.context-block {
+  border-left: 3px solid var(--gold);
+  padding: 14px 18px;
+  background: var(--bg2);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.context-block strong { color: var(--white); }
+
+/* --- Data Table Section ------------------------------------- */
+.table-section {
+  margin-bottom: 56px;
+}
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.table-header h2 { font-size: 1.4rem; }
+
+.export-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  padding: 8px 20px;
+  background: var(--gold-dim);
+  color: var(--bg);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background .2s;
+}
+.export-btn:hover { background: var(--gold); }
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  font-family: 'DM Mono', monospace;
+}
+.data-table thead { position: sticky; top: 0; z-index: 2; }
+.data-table th {
+  background: var(--bg3);
+  color: var(--muted);
+  font-weight: 500;
+  text-align: right;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+}
+.data-table th:first-child { text-align: left; }
+.data-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+.data-table td:first-child {
+  text-align: left;
+  color: var(--muted);
+  position: sticky;
+  left: 0;
+  background: var(--bg2);
+  z-index: 1;
+}
+.data-table tbody tr { background: var(--bg2); }
+.data-table tbody tr:hover { background: var(--bg3); }
+
+.cell-up   { background: rgba(86, 211, 100, .08); }
+.cell-down { background: rgba(224, 92, 92, .08); }
+
+/* --- Footer ------------------------------------------------- */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 0;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.footer .last-update {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  margin-bottom: 16px;
+}
+.footer .sources {
+  margin-bottom: 16px;
+}
+.footer .sources a {
+  color: var(--gold-dim);
+  margin: 0 6px;
+}
+.footer .methodology {
+  font-size: 0.75rem;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* --- Error banner ------------------------------------------- */
+.error-banner {
+  background: rgba(224, 92, 92, .12);
+  border: 1px solid var(--red);
+  color: var(--red);
+  padding: 14px 20px;
+  border-radius: var(--radius);
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 0.85rem;
+  display: none;
+}
+
+/* --- Responsiveness ----------------------------------------- */
+@media (max-width: 768px) {
+  .container { padding: 0 16px; }
+  .header { padding: 32px 0 20px; }
+  .kpi-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+  .kpi-card { padding: 14px; }
+  .kpi-card .value { font-size: 1.3rem; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .chart-wrapper { padding: 12px; }
+  .chart-wrapper canvas { max-height: 280px; }
+  .tabs { gap: 2px; }
+  .tab-btn { font-size: 0.75rem; padding: 6px 10px; }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .kpi-card .changes { flex-direction: column; gap: 4px; }
+  .header h1 { font-size: 1.5rem; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+}

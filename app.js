@@ -1,0 +1,644 @@
+/* ============================================================
+   US Housing Market Dashboard — Frontend Logic
+   ============================================================ */
+
+(function () {
+  "use strict";
+
+  // ── Global state ──────────────────────────────────────────
+  let DATA = null;
+  const CHARTS = {};
+
+  // ── Group definitions & display order ─────────────────────
+  const GROUPS = [
+    { key: "rates",     label: "Taxas e Financiamento", icon: "%" },
+    { key: "supply",    label: "Oferta (Supply)",       icon: "S" },
+    { key: "demand",    label: "Demanda (Demand)",      icon: "D" },
+    { key: "prices",    label: "Precos (Prices)",       icon: "$" },
+    { key: "sentiment", label: "Sentimento e Custos",   icon: "!" },
+  ];
+
+  // Series display order within each group
+  const SERIES_ORDER = {
+    rates:     ["MORTGAGE30US", "MORTGAGE15US", "MBA_PURCH", "MBA_REFI"],
+    supply:    ["HOUST", "PERMIT", "COMPUTSA", "MSACSR"],
+    demand:    ["HSN1F", "EXHOSLUSM495S", "PENNSA", "ACTLISCOUUS"],
+    prices:    ["CSUSHPISA", "USSTHPI", "MSPUS"],
+    sentiment: ["NAHBMMI", "WPU081", "RMI"],
+  };
+
+  // Series where "going up" is negative (bad) for the housing market
+  const UP_IS_BAD = new Set([
+    "MORTGAGE30US", "MORTGAGE15US", "MSACSR", "WPU081",
+  ]);
+
+  // Reference lines for specific series
+  const REF_LINES = {
+    NAHBMMI:      { value: 50, label: "Neutro (50)", color: "rgba(212,168,67,.5)", dash: [6, 4] },
+    RMI:          { value: 50, label: "Neutro (50)", color: "rgba(212,168,67,.5)", dash: [6, 4] },
+    MORTGAGE30US: { value: 7,  label: "7%",          color: "rgba(224,92,92,.4)",  dash: [6, 4] },
+    MORTGAGE15US: { value: 6,  label: "6%",          color: "rgba(224,92,92,.4)",  dash: [6, 4] },
+  };
+
+  // Context/interpretation text for each series
+  const CONTEXT = {
+    MORTGAGE30US:   "A taxa de hipoteca de 30 anos e o principal benchmark para financiamento residencial nos EUA. Taxas acima de 7% historicamente reduzem a demanda de compra.",
+    MORTGAGE15US:   "A taxa de 15 anos oferece juros menores em troca de parcelas maiores. Mais popular entre refinanciamentos e compradores com maior poder aquisitivo.",
+    MBA_PURCH:      "O indice de aplicacoes de compra da MBA mede o volume semanal de pedidos de financiamento para aquisicao de imoveis. Indicador antecedente de vendas futuras.",
+    MBA_REFI:       "O indice de refinanciamento reflete a demanda por renegociacao de hipotecas. Altamente sensivel a movimentos nas taxas de juros.",
+    HOUST:          "Housing Starts medem o inicio de novas construcoes residenciais. Indicador antecedente da oferta futura de moradias.",
+    PERMIT:         "Building Permits sao aprovacoes para novas construcoes. Precedem os Housing Starts e indicam intencoes de construcao.",
+    COMPUTSA:       "Housing Completions medem unidades efetivamente concluidas. Indicador da oferta real entregue ao mercado.",
+    MSACSR:         "Months Supply indica quantos meses levaria para vender todo o estoque atual ao ritmo corrente. Acima de 6 = mercado favoravel ao comprador.",
+    HSN1F:          "Vendas de casas novas (single-family). Indicador-chave da demanda por novas construcoes.",
+    EXHOSLUSM495S:  "Vendas de casas existentes representam ~90% do mercado. Sensiveis a taxas de juros e estoque disponivel.",
+    PENNSA:         "O Pending Home Sales Index mede contratos assinados (nao fechamentos). Indicador antecedente das vendas de casas existentes.",
+    ACTLISCOUUS:    "Contagem de listings ativos no mercado. Estoque baixo pressiona precos para cima; estoque alto favorece compradores.",
+    CSUSHPISA:      "O indice Case-Shiller mede a variacao de precos residenciais nas 20 maiores areas metropolitanas. Referencia global para precos de imoveis nos EUA.",
+    USSTHPI:        "O indice FHFA cobre hipotecas conforming (Fannie Mae / Freddie Mac). Cobertura geografica mais ampla que o Case-Shiller.",
+    MSPUS:          "Preco mediano de casas vendidas nos EUA. Inclui casas novas e existentes. Menos volatil que a media.",
+    NAHBMMI:        "O HMI reflete a confianca dos construtores. Acima de 50 = mais construtores otimistas que pessimistas.",
+    WPU081:         "O PPI de madeira serrada e um proxy dos custos de construcao. Picos elevam o preco final das casas novas.",
+    RMI:            "O Remodeling Market Index mede a atividade de reforma residencial. Acima de 50 indica expansao no setor de reformas.",
+  };
+
+  // ── Formatting helpers ────────────────────────────────────
+
+  function fmtValue(val, seriesId, entry) {
+    if (val == null || val === undefined) return "—";
+    const unit = entry ? entry.unit : "";
+
+    if (unit === "%" || unit.includes("%"))
+      return val.toFixed(2).replace(".", ",") + "%";
+    if (unit === "USD" || unit.startsWith("$") || seriesId === "MSPUS")
+      return "US$ " + Math.round(val).toLocaleString("pt-BR");
+    if (unit.includes("Millions"))
+      return val.toFixed(2).replace(".", ",") + "M";
+    if (unit.includes("Thousands"))
+      return Math.round(val).toLocaleString("pt-BR") + "k";
+    if (unit.includes("Index") || unit.includes("Count"))
+      return Number.isInteger(val) ? val.toLocaleString("pt-BR") : val.toFixed(1).replace(".", ",");
+    if (unit === "Months")
+      return val.toFixed(1).replace(".", ",");
+    return typeof val === "number"
+      ? (Number.isInteger(val) ? val.toLocaleString("pt-BR") : val.toFixed(1).replace(".", ","))
+      : val;
+  }
+
+  function fmtChange(val, seriesId) {
+    if (val == null || val === undefined) return "—";
+    const sign = val > 0 ? "+" : "";
+    const arrow = val > 0 ? "\u25B2" : val < 0 ? "\u25BC" : "";
+    const cls = getChangeClass(val, seriesId);
+    return `<span class="${cls}">${arrow} ${sign}${val.toFixed(1).replace(".", ",")}%</span>`;
+  }
+
+  function getChangeClass(val, seriesId) {
+    if (val == null) return "";
+    const upGood = !UP_IS_BAD.has(seriesId);
+    if (val > 0) return upGood ? "positive" : "negative";
+    if (val < 0) return upGood ? "negative" : "positive";
+    return "";
+  }
+
+  function fmtDate(dateStr) {
+    if (!dateStr) return "—";
+    const d = new Date(dateStr + "T00:00:00");
+    return d.toLocaleDateString("pt-BR", { month: "short", year: "numeric" });
+  }
+
+  // ── Data loading ──────────────────────────────────────────
+
+  async function loadData() {
+    try {
+      const resp = await fetch("data/indicators.json");
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      DATA = await resp.json();
+      render();
+    } catch (err) {
+      console.error("Failed to load data:", err);
+      showError("Erro ao carregar dados. Verifique se data/indicators.json existe.");
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById("error-banner");
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+
+  // ── Main render ───────────────────────────────────────────
+
+  function render() {
+    if (!DATA || !DATA.series) return;
+
+    // Update timestamps
+    const ts = DATA.last_updated || "";
+    const pretty = ts ? new Date(ts).toLocaleString("pt-BR", { dateStyle: "long", timeStyle: "short" }) : "—";
+    document.getElementById("header-updated").textContent = "Dados atualizados em: " + pretty;
+    document.getElementById("footer-updated").textContent = "Ultima atualizacao automatica: " + pretty;
+
+    renderKPIs();
+    renderChartSections();
+    renderTable();
+  }
+
+  // ── KPI Cards ─────────────────────────────────────────────
+
+  function renderKPIs() {
+    const section = document.getElementById("kpi-section");
+    section.innerHTML = "";
+
+    for (const group of GROUPS) {
+      const seriesKeys = (SERIES_ORDER[group.key] || []).filter(k => DATA.series[k]);
+      if (!seriesKeys.length) continue;
+
+      const title = document.createElement("div");
+      title.className = "group-title";
+      title.innerHTML = `<span class="dot"></span>${group.label}`;
+      section.appendChild(title);
+
+      const grid = document.createElement("div");
+      grid.className = "kpi-grid";
+
+      for (const key of seriesKeys) {
+        const s = DATA.series[key];
+        const card = document.createElement("div");
+        card.className = "kpi-card";
+        card.setAttribute("data-series", key);
+        card.onclick = () => scrollToChart(key);
+
+        card.innerHTML = `
+          <div class="freq">${(s.frequency || "").substring(0, 3)}</div>
+          <div class="name">${s.name}</div>
+          <div class="value">${fmtValue(s.latest_value, key, s)}</div>
+          <div class="changes">
+            <div class="change"><span class="label">m/m</span>${fmtChange(s.mom_change, key)}</div>
+            <div class="change"><span class="label">a/a</span>${fmtChange(s.yoy_change, key)}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+      section.appendChild(grid);
+    }
+  }
+
+  // ── Chart Sections ────────────────────────────────────────
+
+  function renderChartSections() {
+    const container = document.getElementById("charts-container");
+    container.innerHTML = "";
+
+    for (const group of GROUPS) {
+      const seriesKeys = (SERIES_ORDER[group.key] || []).filter(k => DATA.series[k]);
+      if (!seriesKeys.length) continue;
+
+      const section = document.createElement("section");
+      section.className = "chart-section";
+      section.id = `section-${group.key}`;
+
+      // Section header
+      const header = document.createElement("div");
+      header.className = "section-header";
+      header.innerHTML = `<h2>${group.label}</h2>`;
+      section.appendChild(header);
+
+      // Tabs
+      const tabs = document.createElement("div");
+      tabs.className = "tabs";
+      for (let i = 0; i < seriesKeys.length; i++) {
+        const key = seriesKeys[i];
+        const s = DATA.series[key];
+        const btn = document.createElement("button");
+        btn.className = "tab-btn" + (i === 0 ? " active" : "");
+        btn.textContent = s.name;
+        btn.setAttribute("data-target", `panel-${key}`);
+        btn.onclick = () => activateTab(tabs, section, key);
+        tabs.appendChild(btn);
+      }
+      section.appendChild(tabs);
+
+      // Panels
+      for (let i = 0; i < seriesKeys.length; i++) {
+        const key = seriesKeys[i];
+        const panel = buildChartPanel(key, i === 0);
+        section.appendChild(panel);
+      }
+
+      container.appendChild(section);
+
+      // Initialize the first chart in each group
+      if (seriesKeys.length) {
+        buildChart(seriesKeys[0], "3A");
+      }
+    }
+  }
+
+  function activateTab(tabsEl, sectionEl, activeKey) {
+    // Update tab buttons
+    tabsEl.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute("data-target") === `panel-${activeKey}`);
+    });
+    // Show/hide panels
+    sectionEl.querySelectorAll(".chart-panel").forEach(panel => {
+      panel.classList.toggle("active", panel.id === `panel-${activeKey}`);
+    });
+    // Build chart if not yet rendered
+    if (!CHARTS[activeKey]) {
+      buildChart(activeKey, "3A");
+    }
+  }
+
+  function buildChartPanel(key, isActive) {
+    const s = DATA.series[key];
+    const panel = document.createElement("div");
+    panel.className = "chart-panel" + (isActive ? " active" : "");
+    panel.id = `panel-${key}`;
+
+    panel.innerHTML = `
+      <div class="chart-header">
+        <div class="chart-title-block">
+          <h3>${s.name}</h3>
+          <div class="chart-desc">${s.unit} &middot; ${s.source}</div>
+        </div>
+        <div class="chart-meta">
+          <span class="freq-badge">${s.frequency}</span>
+        </div>
+      </div>
+      <div class="period-btns">
+        <button class="period-btn" data-period="1A" data-series="${key}">1A</button>
+        <button class="period-btn" data-period="2A" data-series="${key}">2A</button>
+        <button class="period-btn active" data-period="3A" data-series="${key}">3A</button>
+        <button class="period-btn" data-period="MAX" data-series="${key}">Max</button>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="chart-${key}"></canvas>
+      </div>
+      <div class="stats-row" id="stats-${key}"></div>
+      <div class="context-block">${CONTEXT[key] || ""}</div>
+    `;
+
+    // Period button handlers
+    panel.querySelectorAll(".period-btn").forEach(btn => {
+      btn.addEventListener("click", function () {
+        panel.querySelectorAll(".period-btn").forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+        buildChart(key, this.getAttribute("data-period"));
+      });
+    });
+
+    return panel;
+  }
+
+  // ── Chart.js rendering ────────────────────────────────────
+
+  function filterByPeriod(observations, period) {
+    if (!observations || !observations.length) return [];
+    if (period === "MAX") return observations;
+
+    const years = { "1A": 1, "2A": 2, "3A": 3 }[period] || 3;
+    const cutoff = new Date();
+    cutoff.setFullYear(cutoff.getFullYear() - years);
+    const cutoffStr = cutoff.toISOString().split("T")[0];
+
+    return observations.filter(o => o.date >= cutoffStr);
+  }
+
+  function buildChart(key, period) {
+    const s = DATA.series[key];
+    if (!s) return;
+
+    const obs = filterByPeriod(s.observations, period);
+    if (!obs.length) return;
+
+    const labels = obs.map(o => {
+      const d = new Date(o.date + "T00:00:00");
+      return d.toLocaleDateString("pt-BR", { month: "short", year: "2-digit" });
+    });
+    const values = obs.map(o => o.value);
+
+    // Destroy previous chart
+    if (CHARTS[key]) {
+      CHARTS[key].destroy();
+      delete CHARTS[key];
+    }
+
+    const canvas = document.getElementById(`chart-${key}`);
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    const isQuarterly = s.frequency === "Quarterly";
+    const color = getSeriesColor(key);
+
+    const plugins = [];
+    const annotations = {};
+
+    // Reference line
+    if (REF_LINES[key]) {
+      const ref = REF_LINES[key];
+      annotations.refLine = {
+        type: "line",
+        yMin: ref.value,
+        yMax: ref.value,
+        borderColor: ref.color,
+        borderWidth: 1.5,
+        borderDash: ref.dash,
+        label: {
+          display: true,
+          content: ref.label,
+          position: "end",
+          backgroundColor: "transparent",
+          color: ref.color,
+          font: { size: 10, family: "DM Mono" },
+        },
+      };
+    }
+
+    const config = {
+      type: isQuarterly ? "bar" : "line",
+      data: {
+        labels,
+        datasets: [{
+          label: s.name,
+          data: values,
+          borderColor: color,
+          backgroundColor: isQuarterly
+            ? color + "99"
+            : createGradient(ctx, canvas, color),
+          borderWidth: isQuarterly ? 0 : 2,
+          pointRadius: obs.length > 100 ? 0 : 2,
+          pointHoverRadius: 5,
+          pointBackgroundColor: color,
+          tension: 0.3,
+          fill: !isQuarterly,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "#161b22",
+            titleColor: "#e6edf3",
+            bodyColor: "#e6edf3",
+            borderColor: "#30363d",
+            borderWidth: 1,
+            titleFont: { family: "DM Sans" },
+            bodyFont: { family: "DM Mono" },
+            callbacks: {
+              label: (ctx2) => fmtValue(ctx2.parsed.y, key, s),
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: "rgba(48,54,61,.5)", drawBorder: false },
+            ticks: {
+              color: "#8b949e",
+              font: { family: "DM Mono", size: 10 },
+              maxTicksLimit: 12,
+            },
+          },
+          y: {
+            grid: { color: "rgba(48,54,61,.5)", drawBorder: false },
+            ticks: {
+              color: "#8b949e",
+              font: { family: "DM Mono", size: 10 },
+              callback: (v) => fmtValue(v, key, s),
+            },
+          },
+        },
+      },
+      plugins,
+    };
+
+    // Add annotation plugin config if we have reference lines
+    if (Object.keys(annotations).length && window.Chart.registry &&
+        window.Chart.registry.plugins.get("annotation")) {
+      config.options.plugins.annotation = { annotations };
+    }
+
+    CHARTS[key] = new Chart(ctx, config);
+    renderStats(key, obs);
+  }
+
+  function createGradient(ctx, canvas, color) {
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.parentElement.clientHeight || 350);
+    gradient.addColorStop(0, color + "40");
+    gradient.addColorStop(1, color + "00");
+    return gradient;
+  }
+
+  function getSeriesColor(key) {
+    const group = DATA.series[key]?.group;
+    const colors = {
+      rates:     "#d4a843",
+      supply:    "#3fb9b9",
+      demand:    "#56d364",
+      prices:    "#e05c5c",
+      sentiment: "#1f6feb",
+    };
+    return colors[group] || "#d4a843";
+  }
+
+  function renderStats(key, obs) {
+    const s = DATA.series[key];
+    const container = document.getElementById(`stats-${key}`);
+    if (!container || !obs.length) return;
+
+    const values = obs.map(o => o.value);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+    const current = values[values.length - 1];
+
+    container.innerHTML = `
+      <div class="stat-box">
+        <div class="stat-label">Minimo</div>
+        <div class="stat-value">${fmtValue(min, key, s)}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Maximo</div>
+        <div class="stat-value">${fmtValue(max, key, s)}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Atual</div>
+        <div class="stat-value">${fmtValue(current, key, s)}</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Media</div>
+        <div class="stat-value">${fmtValue(avg, key, s)}</div>
+      </div>
+    `;
+  }
+
+  // ── Scroll to chart ───────────────────────────────────────
+
+  function scrollToChart(key) {
+    const s = DATA.series[key];
+    if (!s) return;
+
+    // Find the section for this group
+    const sectionEl = document.getElementById(`section-${s.group}`);
+    if (!sectionEl) return;
+
+    // Activate the correct tab
+    const tabs = sectionEl.querySelector(".tabs");
+    if (tabs) activateTab(tabs, sectionEl, key);
+
+    // Scroll
+    const panel = document.getElementById(`panel-${key}`);
+    if (panel) {
+      panel.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  // ── Data Table ────────────────────────────────────────────
+
+  function renderTable() {
+    const section = document.getElementById("table-section");
+    section.style.display = "block";
+
+    // Collect monthly series
+    const monthlyKeys = [];
+    for (const group of GROUPS) {
+      for (const key of (SERIES_ORDER[group.key] || [])) {
+        const s = DATA.series[key];
+        if (s && (s.frequency === "Monthly" || s.frequency === "Weekly")) {
+          monthlyKeys.push(key);
+        }
+      }
+    }
+
+    if (!monthlyKeys.length) return;
+
+    // Build a unified date index (last 24 months)
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - 24);
+    const cutoffStr = cutoff.toISOString().split("T")[0];
+
+    // Collect all unique months
+    const monthSet = new Set();
+    for (const key of monthlyKeys) {
+      const s = DATA.series[key];
+      if (!s || !s.observations) continue;
+      for (const obs of s.observations) {
+        if (obs.date >= cutoffStr) {
+          const ym = obs.date.substring(0, 7); // YYYY-MM
+          monthSet.add(ym);
+        }
+      }
+    }
+    const months = Array.from(monthSet).sort().slice(-24);
+
+    // Build lookup: key -> { YYYY-MM: value }
+    const lookup = {};
+    for (const key of monthlyKeys) {
+      lookup[key] = {};
+      const s = DATA.series[key];
+      if (!s || !s.observations) continue;
+      for (const obs of s.observations) {
+        const ym = obs.date.substring(0, 7);
+        lookup[key][ym] = obs.value;
+      }
+    }
+
+    // Header
+    const thead = document.getElementById("table-head");
+    let headerHtml = "<tr><th>Data</th>";
+    for (const key of monthlyKeys) {
+      const s = DATA.series[key];
+      headerHtml += `<th title="${s.name}">${abbreviate(s.name)}</th>`;
+    }
+    headerHtml += "</tr>";
+    thead.innerHTML = headerHtml;
+
+    // Body
+    const tbody = document.getElementById("table-body");
+    let bodyHtml = "";
+    for (let i = months.length - 1; i >= 0; i--) {
+      const ym = months[i];
+      const d = new Date(ym + "-01T00:00:00");
+      const label = d.toLocaleDateString("pt-BR", { month: "short", year: "numeric" });
+      bodyHtml += `<tr><td>${label}</td>`;
+      for (const key of monthlyKeys) {
+        const val = lookup[key][ym];
+        const prevYm = i > 0 ? months[i - 1] : null;
+        const prevVal = prevYm ? lookup[key][prevYm] : null;
+
+        let cls = "";
+        if (val != null && prevVal != null) {
+          const diff = val - prevVal;
+          const upGood = !UP_IS_BAD.has(key);
+          if (diff > 0) cls = upGood ? "cell-up" : "cell-down";
+          else if (diff < 0) cls = upGood ? "cell-down" : "cell-up";
+        }
+
+        const display = val != null ? fmtValue(val, key, DATA.series[key]) : "—";
+        bodyHtml += `<td class="${cls}">${display}</td>`;
+      }
+      bodyHtml += "</tr>";
+    }
+    tbody.innerHTML = bodyHtml;
+
+    // CSV export handler
+    document.getElementById("export-csv-btn").onclick = () => exportCSV(monthlyKeys, months, lookup);
+  }
+
+  function abbreviate(name) {
+    // Shorten long names for table headers
+    const map = {
+      "30-Year Fixed Mortgage Rate": "Mort 30Y",
+      "15-Year Fixed Mortgage Rate": "Mort 15Y",
+      "MBA Purchase Applications Index": "MBA Purch",
+      "MBA Refinance Applications Index": "MBA Refi",
+      "Housing Starts (Total)": "Starts",
+      "Building Permits (Total)": "Permits",
+      "Housing Completions": "Completions",
+      "Months' Supply of New Houses": "Mo Supply",
+      "New Home Sales": "New Sales",
+      "Existing Home Sales": "Exist Sales",
+      "Pending Home Sales Index": "Pending",
+      "Active Listing Count": "Listings",
+      "Case-Shiller National HPI": "Case-Shiller",
+      "FHFA House Price Index": "FHFA HPI",
+      "Median Sales Price of Houses Sold": "Med Price",
+      "NAHB Housing Market Index (HMI)": "HMI",
+      "Lumber PPI": "Lumber",
+      "NAHB Remodeling Market Index": "RMI",
+    };
+    return map[name] || name;
+  }
+
+  // ── CSV Export ────────────────────────────────────────────
+
+  function exportCSV(keys, months, lookup) {
+    let csv = "Data";
+    for (const key of keys) {
+      csv += "," + DATA.series[key].name.replace(/,/g, " ");
+    }
+    csv += "\n";
+
+    for (let i = months.length - 1; i >= 0; i--) {
+      csv += months[i];
+      for (const key of keys) {
+        const val = lookup[key][months[i]];
+        csv += "," + (val != null ? val : "");
+      }
+      csv += "\n";
+    }
+
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "housing_indicators_" + new Date().toISOString().split("T")[0] + ".csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Init ──────────────────────────────────────────────────
+  document.addEventListener("DOMContentLoaded", loadData);
+})();

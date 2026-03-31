@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mercado Imobiliario EUA — Dashboard</title>
+  <meta name="description" content="Dashboard interativo com 18 indicadores do mercado imobiliario americano. Dados atualizados semanalmente via FRED API e web scraping.">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.7/chart.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+  <div class="container">
+
+    <!-- HEADER -->
+    <header class="header">
+      <h1><span class="accent">Mercado Imobiliario</span> EUA</h1>
+      <p class="subtitle">FRED API &middot; NAHB &middot; MBA &middot; Dados desde jan/2020</p>
+      <div class="badge" id="header-updated">Carregando dados...</div>
+    </header>
+
+    <!-- ERROR BANNER -->
+    <div class="error-banner" id="error-banner"></div>
+
+    <!-- KPI CARDS (injected by JS) -->
+    <section class="kpi-section" id="kpi-section">
+      <!-- Skeleton placeholders -->
+      <div class="kpi-grid" id="kpi-skeleton">
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+      </div>
+    </section>
+
+    <!-- CHART SECTIONS (injected by JS) -->
+    <section id="charts-container">
+      <div class="skeleton skeleton-chart" style="margin-bottom:24px"></div>
+      <div class="skeleton skeleton-chart" style="margin-bottom:24px"></div>
+    </section>
+
+    <!-- DATA TABLE -->
+    <section class="table-section" id="table-section" style="display:none">
+      <div class="table-header">
+        <h2>Tabela de Dados</h2>
+        <button class="export-btn" id="export-csv-btn">Exportar CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="data-table">
+          <thead id="table-head"></thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="last-update" id="footer-updated"></div>
+      <div class="sources">
+        <a href="https://www.freddiemac.com/" target="_blank">Freddie Mac</a> &middot;
+        <a href="https://fred.stlouisfed.org/" target="_blank">FRED / St. Louis Fed</a> &middot;
+        <a href="https://www.census.gov/" target="_blank">Census Bureau</a> &middot;
+        <a href="https://www.nahb.org/" target="_blank">NAHB</a> &middot;
+        <a href="https://www.mba.org/" target="_blank">MBA</a> &middot;
+        <a href="https://www.spglobal.com/spdji/en/index-family/indicators/sp-corelogic-case-shiller/" target="_blank">Case-Shiller / S&amp;P</a>
+      </div>
+      <div class="methodology">
+        SAAR = Seasonally Adjusted Annual Rate. Dados historicos desde jan/2020.
+        RMI e MBA Applications obtidos via web scraping. Dashboard atualizado automaticamente
+        toda terca-feira as 14h00 UTC (11h00 BRT) via GitHub Actions.
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
