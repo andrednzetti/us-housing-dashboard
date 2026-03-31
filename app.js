@@ -352,7 +352,7 @@
           position: "end",
           backgroundColor: "transparent",
           color: ref.color,
-          font: { size: 10, family: "DM Mono" },
+          font: { size: 10, family: "JetBrains Mono" },
         },
       };
     }
@@ -383,13 +383,15 @@
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: "#161b22",
-            titleColor: "#e6edf3",
-            bodyColor: "#e6edf3",
-            borderColor: "#30363d",
+            backgroundColor: "hsl(240 10% 3.9%)",
+            titleColor: "hsl(0 0% 98%)",
+            bodyColor: "hsl(0 0% 98%)",
+            borderColor: "hsl(240 3.7% 15.9%)",
             borderWidth: 1,
-            titleFont: { family: "DM Sans" },
-            bodyFont: { family: "DM Mono" },
+            cornerRadius: 8,
+            padding: 10,
+            titleFont: { family: "Inter" },
+            bodyFont: { family: "JetBrains Mono" },
             callbacks: {
               label: (ctx2) => fmtValue(ctx2.parsed.y, key, s),
             },
@@ -397,18 +399,18 @@
         },
         scales: {
           x: {
-            grid: { color: "rgba(48,54,61,.5)", drawBorder: false },
+            grid: { color: "hsl(240 3.7% 15.9% / .6)", drawBorder: false },
             ticks: {
-              color: "#8b949e",
-              font: { family: "DM Mono", size: 10 },
+              color: "hsl(240 5% 64.9%)",
+              font: { family: "JetBrains Mono", size: 10 },
               maxTicksLimit: 12,
             },
           },
           y: {
-            grid: { color: "rgba(48,54,61,.5)", drawBorder: false },
+            grid: { color: "hsl(240 3.7% 15.9% / .6)", drawBorder: false },
             ticks: {
-              color: "#8b949e",
-              font: { family: "DM Mono", size: 10 },
+              color: "hsl(240 5% 64.9%)",
+              font: { family: "JetBrains Mono", size: 10 },
               callback: (v) => fmtValue(v, key, s),
             },
           },
@@ -437,13 +439,13 @@
   function getSeriesColor(key) {
     const group = DATA.series[key]?.group;
     const colors = {
-      rates:     "#d4a843",
-      supply:    "#3fb9b9",
-      demand:    "#56d364",
-      prices:    "#e05c5c",
-      sentiment: "#1f6feb",
+      rates:     "hsl(38 92% 50%)",
+      supply:    "hsl(199 89% 48%)",
+      demand:    "hsl(160 84% 39%)",
+      prices:    "hsl(0 72% 51%)",
+      sentiment: "hsl(263 70% 50%)",
     };
-    return colors[group] || "#d4a843";
+    return colors[group] || "hsl(38 92% 50%)";
   }
 
   function renderStats(key, obs) {
