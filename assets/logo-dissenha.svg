@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" fill="none">
+  <!-- Dissenha Moulding Logo Recreation -->
+  <!-- Central chevron/crown shape -->
+  <g fill="#c27a3a">
+    <!-- Left leaf -->
+    <polygon points="60,90 100,30 100,70 75,110"/>
+    <!-- Right leaf -->
+    <polygon points="140,90 100,30 100,70 125,110"/>
+    <!-- Center diamond -->
+    <polygon points="85,75 100,45 115,75 100,105"/>
+    <!-- Bottom left petal -->
+    <polygon points="70,100 85,75 100,110 85,130"/>
+    <!-- Bottom right petal -->
+    <polygon points="130,100 115,75 100,110 115,130"/>
+    <!-- Bottom center -->
+    <polygon points="85,120 100,100 115,120 100,145"/>
+  </g>
+  <!-- Text: DISSENHA -->
+  <text x="100" y="162" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="700" font-size="16" letter-spacing="4" fill="#c27a3a">DISSENHA</text>
+  <!-- Text: MOULDING -->
+  <text x="100" y="177" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="400" font-size="10" letter-spacing="5" fill="#c27a3a">MOULDING</text>
+</svg>

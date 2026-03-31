@@ -92,6 +92,19 @@ a:hover { text-decoration: underline; text-underline-offset: 4px; }
 .skeleton-chart { height: 360px; }
 
 /* --- Header ------------------------------------------------- */
+.header-logo {
+  margin-bottom: 20px;
+}
+.logo-img {
+  height: 72px;
+  width: auto;
+}
+.flag {
+  font-style: normal;
+  font-size: 0.7em;
+  vertical-align: middle;
+  margin-left: 4px;
+}
 .header {
   padding: 48px 0 32px;
   text-align: center;
