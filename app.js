@@ -114,10 +114,15 @@
       const resp = await fetch("data/indicators.json");
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       DATA = await resp.json();
-      render();
     } catch (err) {
       console.error("Failed to load data:", err);
       showError("Erro ao carregar dados. Verifique se data/indicators.json existe.");
+      return;
+    }
+    try {
+      render();
+    } catch (err) {
+      console.error("Render error:", err);
     }
   }
 
@@ -366,7 +371,7 @@
           data: values,
           borderColor: color,
           backgroundColor: isQuarterly
-            ? color + "99"
+            ? colorWithAlpha(color, 0.6)
             : createGradient(ctx, canvas, color),
           borderWidth: isQuarterly ? 0 : 2,
           pointRadius: obs.length > 100 ? 0 : 2,
@@ -383,10 +388,10 @@
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor: "hsl(240 10% 3.9%)",
-            titleColor: "hsl(0 0% 98%)",
-            bodyColor: "hsl(0 0% 98%)",
-            borderColor: "hsl(240 3.7% 15.9%)",
+            backgroundColor: "#09090b",
+            titleColor: "#fafafa",
+            bodyColor: "#fafafa",
+            borderColor: "#27272a",
             borderWidth: 1,
             cornerRadius: 8,
             padding: 10,
@@ -399,17 +404,17 @@
         },
         scales: {
           x: {
-            grid: { color: "hsl(240 3.7% 15.9% / .6)", drawBorder: false },
+            grid: { color: "rgba(39,39,42,.6)", drawBorder: false },
             ticks: {
-              color: "hsl(240 5% 64.9%)",
+              color: "#a1a1aa",
               font: { family: "JetBrains Mono", size: 10 },
               maxTicksLimit: 12,
             },
           },
           y: {
-            grid: { color: "hsl(240 3.7% 15.9% / .6)", drawBorder: false },
+            grid: { color: "rgba(39,39,42,.6)", drawBorder: false },
             ticks: {
-              color: "hsl(240 5% 64.9%)",
+              color: "#a1a1aa",
               font: { family: "JetBrains Mono", size: 10 },
               callback: (v) => fmtValue(v, key, s),
             },
@@ -430,22 +435,34 @@
   }
 
   function createGradient(ctx, canvas, color) {
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.parentElement.clientHeight || 350);
-    gradient.addColorStop(0, color + "40");
-    gradient.addColorStop(1, color + "00");
+    const h = canvas.parentElement.clientHeight || 350;
+    const gradient = ctx.createLinearGradient(0, 0, 0, h);
+    // Convert color to rgba for gradient stops
+    gradient.addColorStop(0, colorWithAlpha(color, 0.25));
+    gradient.addColorStop(1, colorWithAlpha(color, 0));
     return gradient;
+  }
+
+  function colorWithAlpha(color, alpha) {
+    // Handle hex colors
+    if (color.startsWith("#")) return color + Math.round(alpha * 255).toString(16).padStart(2, "0");
+    // Handle hsl — convert to hsla
+    if (color.startsWith("hsl")) {
+      return color.replace("hsl(", "hsla(").replace(")", ", " + alpha + ")");
+    }
+    return color;
   }
 
   function getSeriesColor(key) {
     const group = DATA.series[key]?.group;
     const colors = {
-      rates:     "hsl(38 92% 50%)",
-      supply:    "hsl(199 89% 48%)",
-      demand:    "hsl(160 84% 39%)",
-      prices:    "hsl(0 72% 51%)",
-      sentiment: "hsl(263 70% 50%)",
+      rates:     "#e69b1a",
+      supply:    "#0ea5e9",
+      demand:    "#10b981",
+      prices:    "#ef4444",
+      sentiment: "#8b5cf6",
     };
-    return colors[group] || "hsl(38 92% 50%)";
+    return colors[group] || "#e69b1a";
   }
 
   function renderStats(key, obs) {
