@@ -306,10 +306,8 @@ a:hover { text-decoration: underline; }
   border-radius: var(--radius);
   padding: 20px;
   margin-bottom: 16px;
-}
-.chart-wrapper canvas {
-  width: 100% !important;
-  max-height: 400px;
+  position: relative;
+  height: 420px;
 }
 
 /* Stats row */
@@ -473,8 +471,7 @@ a:hover { text-decoration: underline; }
   .kpi-card { padding: 14px; }
   .kpi-card .value { font-size: 1.3rem; }
   .stats-row { grid-template-columns: repeat(2, 1fr); }
-  .chart-wrapper { padding: 12px; }
-  .chart-wrapper canvas { max-height: 280px; }
+  .chart-wrapper { padding: 12px; height: 320px; }
   .tabs { gap: 2px; }
   .tab-btn { font-size: 0.75rem; padding: 6px 10px; }
 }

@@ -275,7 +275,7 @@
         <button class="period-btn" data-period="MAX" data-series="${key}">Max</button>
       </div>
       <div class="chart-wrapper">
-        <canvas id="chart-${key}"></canvas>
+        <canvas id="chart-${key}" style="width:100%;height:100%"></canvas>
       </div>
       <div class="stats-row" id="stats-${key}"></div>
       <div class="context-block">${CONTEXT[key] || ""}</div>
