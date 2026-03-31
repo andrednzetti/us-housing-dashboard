@@ -6,3 +6,4 @@ venv/
 data/fred_raw.json
 data/scraped_raw.json
 .DS_Store
+*.tmp.*
