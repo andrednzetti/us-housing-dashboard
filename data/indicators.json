@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-03-31T14:45:55Z",
+  "last_updated": "2026-04-07T15:12:08Z",
   "total_series": 16,
   "groups": {
     "rates": {
@@ -1335,12 +1335,16 @@
         {
           "date": "2026-03-26",
           "value": 6.38
+        },
+        {
+          "date": "2026-04-02",
+          "value": 6.46
         }
       ],
-      "latest_value": 6.38,
-      "latest_date": "2026-03-26",
-      "yoy_change": -4.06,
-      "mom_change": 2.57
+      "latest_value": 6.46,
+      "latest_date": "2026-04-02",
+      "yoy_change": -2.71,
+      "mom_change": 1.25
     },
     "MORTGAGE15US": {
       "id": "MORTGAGE15US",
@@ -2653,12 +2657,16 @@
         {
           "date": "2026-03-26",
           "value": 5.75
+        },
+        {
+          "date": "2026-04-02",
+          "value": 5.77
         }
       ],
-      "latest_value": 5.75,
-      "latest_date": "2026-03-26",
-      "yoy_change": -2.38,
-      "mom_change": 3.79
+      "latest_value": 5.77,
+      "latest_date": "2026-04-02",
+      "yoy_change": -0.86,
+      "mom_change": 0.35
     },
     "HOUST": {
       "id": "HOUST",
@@ -4559,12 +4567,16 @@
         {
           "date": "2026-02-01",
           "value": 914860.0
+        },
+        {
+          "date": "2026-03-01",
+          "value": 964477.0
         }
       ],
-      "latest_value": 914860.0,
-      "latest_date": "2026-02-01",
-      "yoy_change": 7.91,
-      "mom_change": 0.24
+      "latest_value": 964477.0,
+      "latest_date": "2026-03-01",
+      "yoy_change": 8.06,
+      "mom_change": 5.42
     },
     "CSUSHPISA": {
       "id": "CSUSHPISA",
