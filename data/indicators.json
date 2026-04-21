@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-14T15:16:07Z",
+  "last_updated": "2026-04-21T15:16:04Z",
   "total_series": 16,
   "groups": {
     "rates": {
@@ -1343,12 +1343,16 @@
         {
           "date": "2026-04-09",
           "value": 6.37
+        },
+        {
+          "date": "2026-04-16",
+          "value": 6.3
         }
       ],
-      "latest_value": 6.37,
-      "latest_date": "2026-04-09",
-      "yoy_change": -3.78,
-      "mom_change": -1.39
+      "latest_value": 6.3,
+      "latest_date": "2026-04-16",
+      "yoy_change": -7.76,
+      "mom_change": -1.1
     },
     "MORTGAGE15US": {
       "id": "MORTGAGE15US",
@@ -2669,12 +2673,16 @@
         {
           "date": "2026-04-09",
           "value": 5.74
+        },
+        {
+          "date": "2026-04-16",
+          "value": 5.65
         }
       ],
-      "latest_value": 5.74,
-      "latest_date": "2026-04-09",
-      "yoy_change": -1.37,
-      "mom_change": -0.52
+      "latest_value": 5.65,
+      "latest_date": "2026-04-16",
+      "yoy_change": -6.3,
+      "mom_change": -1.57
     },
     "HOUST": {
       "id": "HOUST",
