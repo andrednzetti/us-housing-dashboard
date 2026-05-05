@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-04-28T16:08:31Z",
+  "last_updated": "2026-05-05T15:57:08Z",
   "total_series": 16,
   "groups": {
     "rates": {
@@ -1351,12 +1351,16 @@
         {
           "date": "2026-04-23",
           "value": 6.23
+        },
+        {
+          "date": "2026-04-30",
+          "value": 6.3
         }
       ],
-      "latest_value": 6.23,
-      "latest_date": "2026-04-23",
-      "yoy_change": -8.52,
-      "mom_change": -1.11
+      "latest_value": 6.3,
+      "latest_date": "2026-04-30",
+      "yoy_change": -6.8,
+      "mom_change": 1.12
     },
     "MORTGAGE15US": {
       "id": "MORTGAGE15US",
@@ -2685,12 +2689,16 @@
         {
           "date": "2026-04-23",
           "value": 5.58
+        },
+        {
+          "date": "2026-04-30",
+          "value": 5.64
         }
       ],
-      "latest_value": 5.58,
-      "latest_date": "2026-04-23",
-      "yoy_change": -6.06,
-      "mom_change": -1.24
+      "latest_value": 5.64,
+      "latest_date": "2026-04-30",
+      "yoy_change": -4.73,
+      "mom_change": 1.08
     },
     "HOUST": {
       "id": "HOUST",
@@ -2986,17 +2994,25 @@
         },
         {
           "date": "2025-12-01",
-          "value": 1387.0
+          "value": 1373.0
         },
         {
           "date": "2026-01-01",
-          "value": 1487.0
+          "value": 1398.0
+        },
+        {
+          "date": "2026-02-01",
+          "value": 1356.0
+        },
+        {
+          "date": "2026-03-01",
+          "value": 1502.0
         }
       ],
-      "latest_value": 1487.0,
-      "latest_date": "2026-01-01",
-      "yoy_change": 9.5,
-      "mom_change": 7.21
+      "latest_value": 1502.0,
+      "latest_date": "2026-03-01",
+      "yoy_change": 10.85,
+      "mom_change": 10.77
     },
     "PERMIT": {
       "id": "PERMIT",
@@ -3297,12 +3313,20 @@
         {
           "date": "2026-01-01",
           "value": 1386.0
+        },
+        {
+          "date": "2026-02-01",
+          "value": 1538.0
+        },
+        {
+          "date": "2026-03-01",
+          "value": 1363.0
         }
       ],
-      "latest_value": 1386.0,
-      "latest_date": "2026-01-01",
-      "yoy_change": -5.07,
-      "mom_change": -4.74
+      "latest_value": 1363.0,
+      "latest_date": "2026-03-01",
+      "yoy_change": -7.97,
+      "mom_change": -11.38
     },
     "COMPUTSA": {
       "id": "COMPUTSA",
@@ -3602,13 +3626,21 @@
         },
         {
           "date": "2026-01-01",
-          "value": 1527.0
+          "value": 1455.0
+        },
+        {
+          "date": "2026-02-01",
+          "value": 1364.0
+        },
+        {
+          "date": "2026-03-01",
+          "value": 1366.0
         }
       ],
-      "latest_value": 1527.0,
-      "latest_date": "2026-01-01",
-      "yoy_change": -7.51,
-      "mom_change": 4.8
+      "latest_value": 1366.0,
+      "latest_date": "2026-03-01",
+      "yoy_change": -12.77,
+      "mom_change": 0.15
     },
     "MSACSR": {
       "id": "MSACSR",
@@ -3900,21 +3932,29 @@
         },
         {
           "date": "2025-11-01",
-          "value": 7.6
+          "value": 7.8
         },
         {
           "date": "2025-12-01",
-          "value": 8.0
+          "value": 7.8
         },
         {
           "date": "2026-01-01",
-          "value": 9.7
+          "value": 9.8
+        },
+        {
+          "date": "2026-02-01",
+          "value": 9.1
+        },
+        {
+          "date": "2026-03-01",
+          "value": 8.5
         }
       ],
-      "latest_value": 9.7,
-      "latest_date": "2026-01-01",
-      "yoy_change": 7.78,
-      "mom_change": 21.25
+      "latest_value": 8.5,
+      "latest_date": "2026-03-01",
+      "yoy_change": -7.61,
+      "mom_change": -6.59
     },
     "HSN1F": {
       "id": "HSN1F",
@@ -4206,21 +4246,29 @@
         },
         {
           "date": "2025-11-01",
-          "value": 764.0
+          "value": 748.0
         },
         {
           "date": "2025-12-01",
-          "value": 712.0
+          "value": 728.0
         },
         {
           "date": "2026-01-01",
-          "value": 587.0
+          "value": 583.0
+        },
+        {
+          "date": "2026-02-01",
+          "value": 635.0
+        },
+        {
+          "date": "2026-03-01",
+          "value": 682.0
         }
       ],
-      "latest_value": 587.0,
-      "latest_date": "2026-01-01",
-      "yoy_change": -11.33,
-      "mom_change": -17.56
+      "latest_value": 682.0,
+      "latest_date": "2026-03-01",
+      "yoy_change": 3.33,
+      "mom_change": 7.4
     },
     "EXHOSLUSM495S": {
       "id": "EXHOSLUSM495S",
@@ -4590,17 +4638,21 @@
         },
         {
           "date": "2026-02-01",
-          "value": 914860.0
+          "value": 915717.0
         },
         {
           "date": "2026-03-01",
-          "value": 964477.0
+          "value": 947866.0
+        },
+        {
+          "date": "2026-04-01",
+          "value": 1002935.0
         }
       ],
-      "latest_value": 964477.0,
-      "latest_date": "2026-03-01",
-      "yoy_change": 8.06,
-      "mom_change": 5.42
+      "latest_value": 1002935.0,
+      "latest_date": "2026-04-01",
+      "yoy_change": 4.55,
+      "mom_change": 5.81
     },
     "CSUSHPISA": {
       "id": "CSUSHPISA",
@@ -5124,13 +5176,17 @@
         },
         {
           "date": "2025-10-01",
-          "value": 405300.0
+          "value": 412300.0
+        },
+        {
+          "date": "2026-01-01",
+          "value": 403200.0
         }
       ],
-      "latest_value": 405300.0,
-      "latest_date": "2025-10-01",
-      "yoy_change": -3.34,
-      "mom_change": -1.17
+      "latest_value": 403200.0,
+      "latest_date": "2026-01-01",
+      "yoy_change": -4.7,
+      "mom_change": -2.21
     },
     "WPU081": {
       "id": "WPU081",
