@@ -55,7 +55,7 @@ export interface SpotlightProps {
 export function Spotlight({ indicator, events, file }: SpotlightProps): JSX.Element {
   return (
     <section style={sectionStyle} aria-label="Indicador em foco e contexto">
-      <SpotlightCard indicator={indicator} />
+      <SpotlightCard indicator={indicator} generatedAt={file.generatedAt} />
       <aside style={asideStyle}>
         <CronicaEvents events={events} />
         <ComposicaoCarteira file={file} />

@@ -15,6 +15,13 @@
  */
 
 import type { Indicator, Period } from '../types';
+import {
+  formatPtBrMonth,
+  formatPtBrMonthYearShort,
+  formatPtBrShort,
+  formatPtBrYear,
+  subtractFrequency,
+} from './dates';
 
 /** Mapping `Period → quantidade aproximada de pontos semanais a mostrar`. */
 const PERIOD_POINTS: Record<Period, number> = {
@@ -95,4 +102,89 @@ export function xAxisLabelsForPeriod(period: Period): string[] {
     case '5A':
       return ['−5A', '−4A', '−3A', '−2A', '−1A', 'HOJE'];
   }
+}
+
+/**
+ * Quantidade alvo de ticks no X axis por período. Limitada pela quantidade
+ * de pontos disponíveis no slice — para `1M` (4 pts), o máximo possível
+ * são 4 ticks; subir para 5 forçaria duplicar uma posição sem ganho visual.
+ */
+const TICKS_BY_PERIOD: Record<Period, number> = {
+  '1M': 4,
+  '3M': 4,
+  '6M': 4,
+  '1A': 5,
+  '5A': 6,
+};
+
+/** Formata uma `Date` no formato adequado a cada período. */
+function formatLabelForPeriod(date: Date, period: Period): string {
+  switch (period) {
+    case '1M':
+      return formatPtBrShort(date); // DD.MMM
+    case '3M':
+      return formatPtBrMonth(date); // MMM
+    case '6M':
+    case '1A':
+      return formatPtBrMonthYearShort(date); // MMM/AA
+    case '5A':
+      return formatPtBrYear(date); // AAAA
+  }
+}
+
+/**
+ * Gera labels absolutos do X axis a partir do indicator + período + data
+ * de geração. O último label corresponde à `generatedAt`; os demais são
+ * datas históricas espaçadas igualmente, calculadas via `subtractFrequency`
+ * em unidade compatível com `indicator.frequency`.
+ *
+ * Granularidade do label adapta ao período:
+ *   - 1M → DD.MMM        ("07.ABR")
+ *   - 3M → MMM           ("FEV")
+ *   - 6M → MMM/AA        ("DEZ/25")
+ *   - 1A → MMM/AA        ("MAI/25")
+ *   - 5A → AAAA          ("2021")
+ *
+ * Fallback retro: se `indicator.frequency` for `undefined` (data antigo
+ * sem o campo) ou se a `generatedAt` for inválida, retorna labels
+ * relativos via `xAxisLabelsForPeriod` — preservando comportamento da
+ * Fase 4 housekeeping.
+ *
+ * Edge: para séries muito curtas (length < 2), também usa fallback —
+ * não faz sentido distribuir ticks numa série inferior à granularidade
+ * do período.
+ *
+ * @example
+ *   xAxisLabelsForIndicator(mortgage30, '1A', '2026-05-06T17:44:11Z')
+ *   // → ['MAI/25', 'AGO/25', 'NOV/25', 'FEV/26', 'MAI/26']
+ */
+export function xAxisLabelsForIndicator(
+  indicator: Indicator,
+  period: Period,
+  generatedAt: string,
+): string[] {
+  if (!indicator.frequency) {
+    return xAxisLabelsForPeriod(period);
+  }
+  const baseDate = new Date(generatedAt);
+  if (Number.isNaN(baseDate.getTime())) {
+    return xAxisLabelsForPeriod(period);
+  }
+
+  const slicedSeries = sliceSeriesByPeriod(indicator, period);
+  if (slicedSeries.length < 2) {
+    return xAxisLabelsForPeriod(period);
+  }
+
+  const numTicks = Math.min(TICKS_BY_PERIOD[period], slicedSeries.length);
+  const lastIndex = slicedSeries.length - 1;
+  const labels: string[] = [];
+  for (let i = 0; i < numTicks; i += 1) {
+    const fraction = i / (numTicks - 1);
+    const indexInSeries = Math.round(fraction * lastIndex);
+    const pointsBack = lastIndex - indexInSeries;
+    const date = subtractFrequency(baseDate, pointsBack, indicator.frequency);
+    labels.push(formatLabelForPeriod(date, period));
+  }
+  return labels;
 }

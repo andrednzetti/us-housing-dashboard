@@ -2,9 +2,13 @@ import { describe, it, expect } from 'vitest';
 import {
   nextTuesday,
   formatPtBrEditorial,
+  formatPtBrMonth,
+  formatPtBrMonthYearShort,
   formatPtBrNumeric,
   formatPtBrShort,
+  formatPtBrYear,
   PT_BR_MONTHS_ABBR,
+  subtractFrequency,
 } from './dates';
 
 describe('nextTuesday', () => {
@@ -105,5 +109,83 @@ describe('PT_BR_MONTHS_ABBR', () => {
     PT_BR_MONTHS_ABBR.forEach((m) => {
       expect(m).toMatch(/^[A-Z]{3}$/);
     });
+  });
+});
+
+describe('formatPtBrMonth', () => {
+  it('retorna mês abreviado uppercase', () => {
+    expect(formatPtBrMonth(new Date('2026-02-15T00:00:00Z'))).toBe('FEV');
+  });
+
+  it('retorna placeholder em data inválida', () => {
+    expect(formatPtBrMonth(new Date('not-a-date'))).toBe('—');
+  });
+});
+
+describe('formatPtBrMonthYearShort', () => {
+  it('retorna MMM/AA', () => {
+    expect(formatPtBrMonthYearShort(new Date('2026-05-12T00:00:00Z'))).toBe('MAI/26');
+  });
+
+  it('zero-padda ano de 2 dígitos', () => {
+    expect(formatPtBrMonthYearShort(new Date('2009-01-15T00:00:00Z'))).toBe('JAN/09');
+  });
+
+  it('retorna placeholder em data inválida', () => {
+    expect(formatPtBrMonthYearShort(new Date('not-a-date'))).toBe('—');
+  });
+});
+
+describe('formatPtBrYear', () => {
+  it('retorna AAAA', () => {
+    expect(formatPtBrYear(new Date('2021-06-15T00:00:00Z'))).toBe('2021');
+  });
+
+  it('retorna placeholder em data inválida', () => {
+    expect(formatPtBrYear(new Date('not-a-date'))).toBe('—');
+  });
+});
+
+describe('subtractFrequency', () => {
+  it('subtrai N dias quando Daily', () => {
+    const base = new Date('2026-05-06T00:00:00Z');
+    const result = subtractFrequency(base, 3, 'Daily');
+    expect(result.toISOString().slice(0, 10)).toBe('2026-05-03');
+  });
+
+  it('subtrai N*7 dias quando Weekly', () => {
+    const base = new Date('2026-05-06T00:00:00Z');
+    const result = subtractFrequency(base, 4, 'Weekly');
+    expect(result.toISOString().slice(0, 10)).toBe('2026-04-08');
+  });
+
+  it('subtrai N meses quando Monthly', () => {
+    const base = new Date('2026-05-06T00:00:00Z');
+    const result = subtractFrequency(base, 12, 'Monthly');
+    expect(result.toISOString().slice(0, 10)).toBe('2025-05-06');
+  });
+
+  it('subtrai N*3 meses quando Quarterly', () => {
+    const base = new Date('2026-05-06T00:00:00Z');
+    const result = subtractFrequency(base, 4, 'Quarterly');
+    expect(result.toISOString().slice(0, 10)).toBe('2025-05-06');
+  });
+
+  it('preserva hora/minuto/segundo da base', () => {
+    const base = new Date('2026-05-06T17:44:11Z');
+    const result = subtractFrequency(base, 1, 'Weekly');
+    expect(result.toISOString()).toBe('2026-04-29T17:44:11.000Z');
+  });
+
+  it('subtração 0 retorna mesma data', () => {
+    const base = new Date('2026-05-06T00:00:00Z');
+    expect(subtractFrequency(base, 0, 'Weekly').toISOString()).toBe(base.toISOString());
+  });
+
+  it('imutabilidade: não muda a date original', () => {
+    const base = new Date('2026-05-06T00:00:00Z');
+    const original = base.toISOString();
+    subtractFrequency(base, 5, 'Weekly');
+    expect(base.toISOString()).toBe(original);
   });
 });

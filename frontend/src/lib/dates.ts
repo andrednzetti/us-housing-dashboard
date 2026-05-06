@@ -94,3 +94,76 @@ export function formatPtBrShort(date: Date): string {
   const month = PT_BR_MONTHS_ABBR[date.getUTCMonth()] ?? PLACEHOLDER;
   return `${day}.${month}`;
 }
+
+/**
+ * Formata uma `Date` em UTC como `MMM` (mês abreviado uppercase pt-BR).
+ *
+ * @example
+ *   formatPtBrMonth(new Date('2026-02-01T00:00:00Z'))  // 'FEV'
+ */
+export function formatPtBrMonth(date: Date): string {
+  if (Number.isNaN(date.getTime())) return PLACEHOLDER;
+  return PT_BR_MONTHS_ABBR[date.getUTCMonth()] ?? PLACEHOLDER;
+}
+
+/**
+ * Formata uma `Date` em UTC como `MMM/AA` (mês + ano em 2 dígitos).
+ *
+ * @example
+ *   formatPtBrMonthYearShort(new Date('2026-05-12T00:00:00Z'))  // 'MAI/26'
+ */
+export function formatPtBrMonthYearShort(date: Date): string {
+  if (Number.isNaN(date.getTime())) return PLACEHOLDER;
+  const month = PT_BR_MONTHS_ABBR[date.getUTCMonth()] ?? PLACEHOLDER;
+  const year2 = String(date.getUTCFullYear() % 100).padStart(2, '0');
+  return `${month}/${year2}`;
+}
+
+/**
+ * Formata uma `Date` em UTC como `AAAA` (ano completo).
+ *
+ * @example
+ *   formatPtBrYear(new Date('2021-03-15T00:00:00Z'))  // '2021'
+ */
+export function formatPtBrYear(date: Date): string {
+  if (Number.isNaN(date.getTime())) return PLACEHOLDER;
+  return String(date.getUTCFullYear());
+}
+
+/** Frequências de série suportadas para `subtractFrequency`. */
+export type FrequencyUnit = 'Daily' | 'Weekly' | 'Monthly' | 'Quarterly';
+
+/**
+ * Subtrai `n` unidades de frequência (semanas, meses, etc.) de uma data UTC.
+ * Operação imutável — retorna nova `Date`. Usa as setters UTC para evitar
+ * deriva por DST.
+ *
+ * @example
+ *   subtractFrequency(new Date('2026-05-06T00:00:00Z'), 3, 'Weekly')
+ *   // → 2026-04-15T00:00:00Z (3 semanas antes)
+ *   subtractFrequency(new Date('2026-05-06T00:00:00Z'), 6, 'Monthly')
+ *   // → 2025-11-06T00:00:00Z
+ */
+export function subtractFrequency(
+  date: Date,
+  n: number,
+  frequency: FrequencyUnit,
+): Date {
+  const result = new Date(date.getTime());
+  if (Number.isNaN(result.getTime())) return result;
+  switch (frequency) {
+    case 'Daily':
+      result.setUTCDate(result.getUTCDate() - n);
+      break;
+    case 'Weekly':
+      result.setUTCDate(result.getUTCDate() - n * 7);
+      break;
+    case 'Monthly':
+      result.setUTCMonth(result.getUTCMonth() - n);
+      break;
+    case 'Quarterly':
+      result.setUTCMonth(result.getUTCMonth() - n * 3);
+      break;
+  }
+  return result;
+}

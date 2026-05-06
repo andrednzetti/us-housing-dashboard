@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { sliceSeriesByPeriod, seriesStats, xAxisLabelsForPeriod } from './series';
+import {
+  sliceSeriesByPeriod,
+  seriesStats,
+  xAxisLabelsForIndicator,
+  xAxisLabelsForPeriod,
+} from './series';
 import type { Period } from '../types';
 import { mockIndicator } from '../test-utils/mock-data';
 
@@ -121,5 +126,124 @@ describe('xAxisLabelsForPeriod', () => {
         expect(label.startsWith('-')).toBe(false);
       }
     }
+  });
+});
+
+describe('xAxisLabelsForIndicator', () => {
+  const GEN_AT = '2026-05-06T17:44:11Z';
+
+  it('mortgage30-like (Weekly, 260 pts) com period 1A → 5 datas reais MMM/AA', () => {
+    const ind = mockIndicator({
+      frequency: 'Weekly',
+      series: Array.from({ length: 260 }, (_, i) => i),
+    });
+    const labels = xAxisLabelsForIndicator(ind, '1A', GEN_AT);
+    expect(labels).toHaveLength(5);
+    expect(labels.at(-1)).toBe('MAI/26'); // último é generatedAt
+    // Primeiros 4 são datas reais no formato MMM/AA
+    labels.slice(0, 4).forEach((l) => expect(l).toMatch(/^[A-Z]{3}\/\d{2}$/));
+  });
+
+  it('mortgage30-like com period 5A → 6 anos AAAA', () => {
+    const ind = mockIndicator({
+      frequency: 'Weekly',
+      series: Array.from({ length: 260 }, (_, i) => i),
+    });
+    const labels = xAxisLabelsForIndicator(ind, '5A', GEN_AT);
+    expect(labels).toHaveLength(6);
+    expect(labels.at(-1)).toBe('2026');
+    expect(labels[0]).toBe('2021'); // 5 anos atrás (260 weeks ≈ 5 years)
+    labels.forEach((l) => expect(l).toMatch(/^\d{4}$/));
+  });
+
+  it('period 6M → 4 labels MMM/AA', () => {
+    const ind = mockIndicator({
+      frequency: 'Weekly',
+      series: Array.from({ length: 260 }, (_, i) => i),
+    });
+    const labels = xAxisLabelsForIndicator(ind, '6M', GEN_AT);
+    expect(labels).toHaveLength(4);
+    expect(labels.at(-1)).toBe('MAI/26');
+    labels.forEach((l) => expect(l).toMatch(/^[A-Z]{3}\/\d{2}$/));
+  });
+
+  it('period 3M → 4 labels MMM (sem ano)', () => {
+    const ind = mockIndicator({
+      frequency: 'Weekly',
+      series: Array.from({ length: 260 }, (_, i) => i),
+    });
+    const labels = xAxisLabelsForIndicator(ind, '3M', GEN_AT);
+    expect(labels).toHaveLength(4);
+    expect(labels.at(-1)).toBe('MAI');
+    labels.forEach((l) => expect(l).toMatch(/^[A-Z]{3}$/));
+  });
+
+  it('period 1M → 4 labels DD.MMM (limitado pelos 4 pts do slice)', () => {
+    const ind = mockIndicator({
+      frequency: 'Weekly',
+      series: Array.from({ length: 260 }, (_, i) => i),
+    });
+    const labels = xAxisLabelsForIndicator(ind, '1M', GEN_AT);
+    expect(labels).toHaveLength(4);
+    expect(labels.at(-1)).toBe('06.MAI');
+    labels.forEach((l) => expect(l).toMatch(/^\d{2}\.[A-Z]{3}$/));
+  });
+
+  it('fallback para labels relativos quando frequency é undefined', () => {
+    // mockIndicator não popula frequency por default — perfeito para testar
+    // o fallback retro (data antigo, pré housekeeping pré-Fase 5).
+    const ind = mockIndicator({ series: [1, 2, 3, 4, 5] });
+    expect(xAxisLabelsForIndicator(ind, '1A', GEN_AT)).toEqual(
+      ['−12M', '−9M', '−6M', '−3M', 'HOJE'],
+    );
+  });
+
+  it('fallback quando generatedAt é inválido', () => {
+    const ind = mockIndicator({
+      frequency: 'Weekly',
+      series: Array.from({ length: 52 }, (_, i) => i),
+    });
+    expect(xAxisLabelsForIndicator(ind, '1A', 'not-a-date')).toEqual(
+      ['−12M', '−9M', '−6M', '−3M', 'HOJE'],
+    );
+  });
+
+  it('fallback quando série tem menos de 2 pontos', () => {
+    const ind = mockIndicator({ frequency: 'Weekly', series: [42] });
+    expect(xAxisLabelsForIndicator(ind, '1A', GEN_AT)).toEqual(
+      ['−12M', '−9M', '−6M', '−3M', 'HOJE'],
+    );
+  });
+
+  it('respeita Monthly: 5A com 60 pts (5 anos) → 6 labels', () => {
+    const ind = mockIndicator({
+      frequency: 'Monthly',
+      series: Array.from({ length: 60 }, (_, i) => i),
+    });
+    const labels = xAxisLabelsForIndicator(ind, '5A', GEN_AT);
+    expect(labels).toHaveLength(6);
+    expect(labels.at(-1)).toBe('2026');
+    // 60 pontos mensais = 59 meses atrás → ~2021
+    expect(labels[0]).toBe('2021');
+  });
+
+  it('respeita Quarterly: 1A com 20 pts → 4 labels (clamped)', () => {
+    const ind = mockIndicator({
+      frequency: 'Quarterly',
+      series: Array.from({ length: 20 }, (_, i) => i),
+    });
+    const labels = xAxisLabelsForIndicator(ind, '1A', GEN_AT);
+    expect(labels.length).toBeGreaterThanOrEqual(4);
+    expect(labels.at(-1)).toMatch(/^[A-Z]{3}\/\d{2}$/);
+  });
+
+  it('série mais curta que TICKS_BY_PERIOD: clamp ao length disponível', () => {
+    const ind = mockIndicator({
+      frequency: 'Monthly',
+      series: [1, 2, 3], // só 3 pontos
+    });
+    const labels = xAxisLabelsForIndicator(ind, '1A', GEN_AT);
+    expect(labels.length).toBeLessThanOrEqual(3);
+    expect(labels.at(-1)).toBe('MAI/26');
   });
 });
