@@ -47,6 +47,11 @@ MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024  # 2 MB
 OBSERVATION_START = "2020-01-01"
 MAX_SERIES_POINTS = 52  # último ano para weekly, ~4 anos para monthly, etc.
 
+# Last-known-good fallback (PR 1b bugfix): se um indicador esperado estiver
+# ausente após o merge raw, tenta recuperar do indicators.json anterior
+# (commitado pelo workflow da semana passada) — desde que esteja "fresco".
+MAX_FALLBACK_AGE_DAYS = 14
+
 # Lookback (e tolerância de busca) por delta_period.
 LOOKBACK_DAYS = {
     "sem":  7,
@@ -94,6 +99,123 @@ def load_json(path: str) -> dict:
         return {}
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def load_previous_indicators(path: str) -> dict:
+    """
+    Lê o `indicators.json` produzido na execução anterior (commitado no repo)
+    de forma schema-agnóstica e devolve um dict `raw_key -> series_data`.
+
+    Suporta:
+      - **Schema v1**: `data["series"]` é um dict keyed por raw_key (com
+        observations completas — fonte ideal para o fallback, contém datas).
+      - **Schema v2**: `data["indicators"]` é uma lista de objetos com
+        `id, value, series[number]` — o array de números **não preserva
+        datas**, então `get_series_age_days` retornará None e o fallback
+        será descartado. Em produção, `indicators.legacy.json` é a fonte
+        confiável de fallback após o cutover (chamada secundária em main).
+
+    Devolve `{}` se o arquivo não existir ou estiver corrompido.
+    """
+    if not os.path.exists(path):
+        return {}
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"  [WARN] Could not read previous {path}: {e}")
+        return {}
+
+    # Schema v1
+    if isinstance(data.get("series"), dict):
+        return data["series"]
+
+    # Schema v2 — reconstrói shape esperado a partir do payload por indicador.
+    # Não preserva datas; o age-check vai recusar esses fallbacks.
+    if isinstance(data.get("indicators"), list):
+        result: dict = {}
+        for ind in data["indicators"]:
+            ind_id = ind.get("id")
+            if ind_id and ind_id in INDICATORS_META:
+                raw_key = INDICATORS_META[ind_id]["raw_key"]
+                result[raw_key] = {
+                    "observations": ind.get("_observations", []),
+                    "value": ind.get("value"),
+                    "latest_value": ind.get("value"),
+                }
+        return result
+
+    return {}
+
+
+def get_series_age_days(series_data: dict) -> int | None:
+    """
+    Devolve quantos dias se passaram desde a última observação na série,
+    ou None se não for possível determinar (sem observations, sem date,
+    formato inválido).
+    """
+    obs = series_data.get("observations") or []
+    if not obs:
+        return None
+    last_date_str = obs[-1].get("date")
+    if not isinstance(last_date_str, str):
+        return None
+    try:
+        # Aceita "YYYY-MM-DD" e "YYYY-MM-DDTHH:MM:SS..." — usamos só a parte da data.
+        last_date = datetime.fromisoformat(last_date_str.split("T")[0]).date()
+    except (ValueError, TypeError):
+        return None
+    today = datetime.now(timezone.utc).date()
+    return (today - last_date).days
+
+
+def apply_fallback(
+    merged_raw: dict,
+    previous: dict,
+) -> list[tuple[str, str, int]]:
+    """
+    Para cada indicador esperado por `INDICATORS_META` cujo `raw_key` esteja
+    ausente em `merged_raw`, tenta recuperar de `previous`.
+
+    Mutates `merged_raw` em lugar adicionando os fallbacks aceitos.
+
+    Retorna lista de tuplas `(indicator_id, raw_key, age_days)` para cada
+    fallback efetivamente aplicado.
+
+    Critérios de aceitação:
+      - raw_key precisa estar em `previous` com observations/dates legíveis;
+      - idade da última observação ≤ MAX_FALLBACK_AGE_DAYS (default 14);
+      - sem age determinado → fallback é descartado em silêncio (skipped).
+    """
+    fallbacks: list[tuple[str, str, int]] = []
+    for indicator_id, meta in INDICATORS_META.items():
+        raw_key = meta["raw_key"]
+        if raw_key in merged_raw:
+            continue  # já presente no merge atual
+        if raw_key not in previous:
+            continue  # nada pra recuperar
+
+        prev_data = previous[raw_key]
+        age = get_series_age_days(prev_data)
+
+        if age is None:
+            # Sem datas (ex.: vem do payload v2) — não dá pra validar
+            # a "freshness". Skip silencioso.
+            continue
+        if age > MAX_FALLBACK_AGE_DAYS:
+            print(
+                f"  [SKIP] {indicator_id}: previous data is {age}d old "
+                f"(>{MAX_FALLBACK_AGE_DAYS}d). Will fail strict check."
+            )
+            continue
+
+        merged_raw[raw_key] = prev_data
+        fallbacks.append((indicator_id, raw_key, age))
+        print(
+            f"  [FALLBACK] {indicator_id}: using last-known-good for "
+            f"{raw_key} ({age}d old)"
+        )
+    return fallbacks
 
 
 def load_events(path: str) -> list[dict]:
@@ -356,6 +478,23 @@ def main() -> None:
 
     merged = {**fred_data, **scraped_data, **derived}
     print(f"\nMerged total: {len(merged)} raw series")
+
+    # ─── last-known-good fallback ────────────────────────────────────────
+    # Antes do strict 23-or-fail, tenta preencher raw_keys ausentes a partir
+    # do indicators.json anterior (commitado pelo workflow anterior). Tenta
+    # primeiro o legacy v1 (sempre tem datas) e, em segundo lugar, o
+    # indicators.json (pode ser v1 em transição ou v2 sem datas).
+    print("\nApplying last-known-good fallback for missing indicators...")
+    previous = load_previous_indicators(output_legacy_path)
+    if not previous:
+        previous = load_previous_indicators(output_v2_path)
+    fallbacks = apply_fallback(merged, previous)
+    if fallbacks:
+        print(f"\n  [WARN] Used last-known-good for {len(fallbacks)} indicators:")
+        for ind_id, raw_key, age in fallbacks:
+            print(f"    - {ind_id} ({raw_key}): {age}d old")
+    else:
+        print("  No fallbacks needed (all expected raw_keys present in fresh merge).")
 
     # ─── v2 ──────────────────────────────────────────────────────────────
     print("\nBuilding v2 payload...")
