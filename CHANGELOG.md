@@ -9,16 +9,11 @@ versionamento [SemVer](https://semver.org/lang/pt-BR/).
 
 ## [Unreleased]
 
-### Pendente para v2.0.0
-
-- **PR 5b** — Remover geração de `data/indicators.legacy.json` em `merge_data.py`
-  (não é mais necessário pós-cutover).
-- **PR 5c** — Workflow novo de deploy do `frontend/dist/` para GitHub Pages,
-  ajuste em Settings → Pages, tag `v2.0.0` e bump do `frontend/package.json`.
+Sem mudanças pendentes.
 
 ---
 
-## [2.0.0] — _data a definir no PR 5c_
+## [2.0.0] — 2026-05-06
 
 Reescrita completa do frontend de vanilla HTML/JS para **React 18 + TypeScript
 strict + Vite**, seguindo o design **Variação D** do handoff
@@ -72,14 +67,24 @@ indicadores e derivados; schema v2 introduzido.
 
 ### Removido
 
-- `legacy/` agora contém os arquivos da v1 (`index.html`, `app.js`, `style.css`,
-  `assets/`) — preservados mas **não mais servidos em produção** após a PR 5c.
+- Arquivos vanilla v1 (`index.html`, `app.js`, `style.css`, `assets/`) movidos
+  da raiz para `legacy/` — preservados mas não mais servidos em produção.
+- Geração de `data/indicators.legacy.json` em `merge_data.py` — frontend React
+  consome apenas `indicators.json` (schema v2). Snapshot histórico do legacy
+  json continua acessível via tag `v1-vanilla-final`.
+- Constantes legacy de v1 do `merge_data.py` (`LEGACY_V1_KEYS`,
+  `LEGACY_KEY_ALIASES`, `V1_GROUP_ORDER`, `V1_GROUP_LABELS`,
+  função `build_legacy_v1`).
 
-### Deprecado
+### Adicionado (cutover)
 
-- `data/indicators.legacy.json` — deixará de ser gerado pela pipeline na PR 5b.
-  Frontend legacy em `legacy/` continua referenciando-o, mas só funcionará se
-  alguém regenerar manualmente o arquivo.
+- `.github/workflows/deploy-pages.yml` — workflow novo que builda `frontend/`
+  e faz deploy para GitHub Pages via `actions/deploy-pages@v4`. Disparado em
+  push em `main` quando `frontend/**`, `data/**` ou o próprio workflow muda.
+- `frontend/package.json` versão bumpada de `0.0.0` para `2.0.0` (semver
+  alinhado com a tag `v2.0.0` git).
+- `legacy/` na raiz com a versão vanilla preservada.
+- `docs/migration/post-mortem.md` com retrospectiva da migração.
 
 ### Corrigido (durante a migração)
 

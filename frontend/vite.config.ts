@@ -8,11 +8,12 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
  * Vite + Vitest config para o frontend React/TS do Dashboard
  * Mercado Imobiliário EUA.
  *
- * - `base: '/'` → Vercel preview / GitHub Pages root.
+ * - `base: '/'` → GitHub Pages produção (custom path se algum dia subpath
+ *   reaparecer) / Vercel preview.
  * - `viteStaticCopy` copia os arquivos JSON da raiz `data/` para
  *   `frontend/public/data/` no momento do build, garantindo que o frontend
- *   acesse `./data/indicators.json` e `./data/indicators.legacy.json` em
- *   runtime sem depender de cópia manual ou symlink.
+ *   acesse `./data/indicators.json` em runtime sem depender de cópia
+ *   manual ou symlink.
  * - Bloco `test` configura Vitest para src test files.
  */
 export default defineConfig({
@@ -21,9 +22,9 @@ export default defineConfig({
     react(),
     viteStaticCopy({
       // silent=true evita falhar build quando algum arquivo opcional não
-      // existe (ex.: indicators.legacy.json antes do primeiro workflow run
-      // pós-PR 1b commitar o arquivo no repo). Em produção/CI o
-      // indicators.json sempre existe — se não existir, App.tsx mostra
+      // existe — defesa para o caso de o frontend ser buildado num clone
+      // limpo antes do primeiro run do workflow. Em produção/CI o
+      // indicators.json sempre existe; se faltar, App.tsx mostra
       // "Erro ao carregar dados" em runtime.
       silent: true,
       targets: [
@@ -32,8 +33,8 @@ export default defineConfig({
         // (fred_raw.json, scraped_raw.json — gitignored mas que ficam no
         // working tree após rodar fetch_*.py local).
         // Em dev (vite serve), o plugin sincroniza on-the-fly.
+        // indicators.legacy.json deixou de ser gerado no v2.0.0 (PR #16).
         { src: '../data/indicators.json', dest: 'data' },
-        { src: '../data/indicators.legacy.json', dest: 'data' },
         { src: '../data/events.json', dest: 'data' },
         { src: '../data/schema.json', dest: 'data' },
       ],
