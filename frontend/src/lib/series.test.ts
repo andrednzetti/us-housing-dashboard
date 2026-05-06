@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { sliceSeriesByPeriod, seriesStats } from './series';
+import { sliceSeriesByPeriod, seriesStats, xAxisLabelsForPeriod } from './series';
+import type { Period } from '../types';
 import { mockIndicator } from '../test-utils/mock-data';
 
 describe('sliceSeriesByPeriod', () => {
@@ -78,5 +79,47 @@ describe('seriesStats', () => {
 
   it('avg correto para média não-inteira', () => {
     expect(seriesStats([1, 2]).avg).toBe(1.5);
+  });
+});
+
+describe('xAxisLabelsForPeriod', () => {
+  it('1M produz 5 labels semanais', () => {
+    expect(xAxisLabelsForPeriod('1M')).toEqual(['−4S', '−3S', '−2S', '−1S', 'HOJE']);
+  });
+
+  it('3M produz 4 labels (≈trimestre em semanas)', () => {
+    expect(xAxisLabelsForPeriod('3M')).toEqual(['−12S', '−8S', '−4S', 'HOJE']);
+  });
+
+  it('6M produz 4 labels mensais', () => {
+    expect(xAxisLabelsForPeriod('6M')).toEqual(['−6M', '−4M', '−2M', 'HOJE']);
+  });
+
+  it('1A produz 5 labels trimestrais em meses', () => {
+    expect(xAxisLabelsForPeriod('1A')).toEqual(['−12M', '−9M', '−6M', '−3M', 'HOJE']);
+  });
+
+  it('5A produz 6 labels anuais', () => {
+    expect(xAxisLabelsForPeriod('5A')).toEqual(['−5A', '−4A', '−3A', '−2A', '−1A', 'HOJE']);
+  });
+
+  it('todos os períodos terminam em HOJE', () => {
+    const periods: Period[] = ['1M', '3M', '6M', '1A', '5A'];
+    for (const p of periods) {
+      expect(xAxisLabelsForPeriod(p).at(-1)).toBe('HOJE');
+    }
+  });
+
+  it('todos os períodos usam − (U+2212), não hífen ASCII', () => {
+    const periods: Period[] = ['1M', '3M', '6M', '1A', '5A'];
+    for (const p of periods) {
+      const labels = xAxisLabelsForPeriod(p);
+      // Pelo menos um label do passado deve ter o minus
+      const pastLabels = labels.slice(0, -1);
+      for (const label of pastLabels) {
+        expect(label.startsWith('−')).toBe(true);
+        expect(label.startsWith('-')).toBe(false);
+      }
+    }
   });
 });

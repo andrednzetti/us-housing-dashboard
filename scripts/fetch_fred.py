@@ -11,8 +11,17 @@ import os
 import sys
 import time
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import requests
+from dotenv import load_dotenv
+
+# Carrega FRED_API_KEY (e demais env vars) do .env na raiz do repo. No
+# GitHub Actions o .env não existe — load_dotenv() é no-op silencioso e
+# os.environ.get('FRED_API_KEY') segue lendo do GH Secrets normalmente.
+# Local: dispensa o `set -a; source .env; set +a` manual.
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(_REPO_ROOT / ".env")
 
 # ---------------------------------------------------------------------------
 # Series definitions — each entry maps a short key to its FRED metadata.
