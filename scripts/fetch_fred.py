@@ -35,6 +35,22 @@ SERIES = {
         "frequency": "Weekly",
         "source": "Freddie Mac via FRED",
     },
+    "FEDFUNDS": {
+        "id": "FEDFUNDS",
+        "name": "Federal Funds Effective Rate",
+        "group": "rates",
+        "unit": "%",
+        "frequency": "Monthly",
+        "source": "Federal Reserve via FRED",
+    },
+    "DGS10": {
+        "id": "DGS10",
+        "name": "10-Year Treasury Constant Maturity",
+        "group": "rates",
+        "unit": "%",
+        "frequency": "Daily",
+        "source": "Federal Reserve via FRED",
+    },
     # Group 2 — Supply
     "HOUST": {
         "id": "HOUST",
@@ -142,6 +158,31 @@ SERIES = {
         "unit": "Index (Dec 1981=100)",
         "frequency": "Monthly",
         "source": "Bureau of Labor Statistics via FRED",
+    },
+    # Group 6 — Macro & Affordability inputs (added in Phase 1 PR 1a)
+    "UNRATE": {
+        "id": "UNRATE",
+        "name": "Unemployment Rate",
+        "group": "macro",
+        "unit": "%",
+        "frequency": "Monthly",
+        "source": "BLS via FRED",
+    },
+    "CUSR0000SAH1": {
+        "id": "CUSR0000SAH1",
+        "name": "CPI Shelter Index (level)",
+        "group": "macro",
+        "unit": "Index (1982-84=100)",
+        "frequency": "Monthly",
+        "source": "BLS via FRED",
+    },
+    "MEFAINUSA672N": {
+        "id": "MEFAINUSA672N",
+        "name": "Real Median Family Income",
+        "group": "macro",
+        "unit": "2024 C-CPI-U Dollars",
+        "frequency": "Annual",
+        "source": "U.S. Census Bureau via FRED",
     },
 }
 
