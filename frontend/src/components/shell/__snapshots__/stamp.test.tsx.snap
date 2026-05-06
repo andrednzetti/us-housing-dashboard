@@ -1,0 +1,7 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Stamp > renderiza variante accent (default) 1`] = `"<span style="font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--accent);border:0.75px solid var(--accent);padding:3px 8px;border-radius:var(--radius-stamp);background:transparent;display:inline-block;line-height:1.2">Confidencial</span>"`;
+
+exports[`Stamp > renderiza variante muted 1`] = `"<span style="font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase;color:rgba(232, 230, 224, 0.5);border:0.75px solid rgba(232, 230, 224, 0.5);padding:3px 8px;border-radius:var(--radius-stamp);background:transparent;display:inline-block;line-height:1.2">Atualizado · Ter</span>"`;
+
+exports[`Stamp > respeita color override (cobre fallback de variant) 1`] = `"<span style="font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--ink);border:0.75px solid var(--ink);padding:3px 8px;border-radius:var(--radius-stamp);background:transparent;display:inline-block;line-height:1.2">4 destaques</span>"`;

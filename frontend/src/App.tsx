@@ -1,63 +1,23 @@
-import { useEffect, useState, type CSSProperties } from 'react';
-import type { IndicatorsFile } from './types';
-import {
-  AreaChart,
-  Donut,
-  Gauge,
-  HBarSimple,
-  Sparkline,
-} from './components/charts';
-
 /**
- * Hello world tokenizado da Fase 2 — prova quatro coisas de uma vez:
- *   1. tokens CSS estão sendo aplicados (var(--bg), var(--accent), etc.)
- *   2. Google Fonts carregaram (Source Serif 4 italic no "EUA", JetBrains Mono nos labels)
- *   3. fetch do JSON funciona e o tipo `IndicatorsFile` bate com o schema v2
- *   4. TypeScript strict não reclama
+ * App root — Variação D shell montado.
  *
- * Fase 3 PR 3a: tipo `IndicatorsFile` agora vem do módulo central de tipos
- * (`src/types/`), espelhando exatamente `data/schema.json`.
+ * Fase 4 PR 4a: aplica o esqueleto editorial do Handoff (header banda escura
+ * + footer 3-col + AppLayout container) e troca o fetch inline pelo hook
+ * `useIndicatorsFile`. O conteúdo do `<main>` é placeholder até PRs 4b
+ * (KPI Quadro), 4c (Spotlight + Ledger) e 4d (Anexos + polimento) chegarem.
  *
- * Fase 3 PR 3b: a seção "Chart Primitives Demo" abaixo dos cards de contagem
- * renderiza os 5 SVG charts com mock data. Sanity check visual antes da Fase 4
- * compor estes mesmos componentes em cards reais alimentados por `indicators`.
- *
- * O dashboard real (Variação D completa) é construído da Fase 4 em diante;
- * este componente é descartado naquele momento.
+ * Histórico:
+ *   - Fase 2: hello world tokenizado provando tokens + fonts + JSON fetch
+ *   - Fase 3 PR 3a: tipo `IndicatorsFile` e helpers do domain layer
+ *   - Fase 3 PR 3b: 5 chart primitives SVG (demo descartável removida aqui)
+ *   - Fase 4 PR 4a: shell + hook (este arquivo)
  */
 
-/** Mock series para a demo dos charts — 12 pontos típicos de uma variável % a.a. */
-const MOCK_SERIES: number[] = [3.2, 3.8, 4.1, 4.5, 4.3, 4.9, 5.1, 5.0, 4.8, 4.6, 4.4, 4.2];
+import type { CSSProperties, JSX } from 'react';
+import { AppLayout, Footer, Header } from './components/shell';
+import { useIndicatorsFile } from './hooks/use-indicators-file';
 
-type LoadState =
-  | { status: 'loading' }
-  | { status: 'error'; error: string }
-  | { status: 'ready'; data: IndicatorsFile };
-
-const layout: CSSProperties = {
-  padding: 'var(--space-12)',
-  background: 'var(--bg)',
-  color: 'var(--ink)',
-  minHeight: '100vh',
-  fontFamily: 'var(--font-sans)',
-};
-
-const heroStyle: CSSProperties = {
-  fontFamily: 'var(--font-serif)',
-  fontSize: 'var(--fs-hero)',
-  fontWeight: 400,
-  letterSpacing: 'var(--ls-hero)',
-  lineHeight: 'var(--lh-hero)',
-  marginBottom: 'var(--space-6)',
-};
-
-const accentItalic: CSSProperties = {
-  color: 'var(--accent)',
-  fontStyle: 'italic',
-  fontWeight: 400,
-};
-
-const labelStyle: CSSProperties = {
+const stateLabelStyle: CSSProperties = {
   fontFamily: 'var(--font-mono)',
   fontSize: 'var(--fs-label-l)',
   color: 'var(--ink-mute)',
@@ -66,220 +26,110 @@ const labelStyle: CSSProperties = {
   marginBottom: 'var(--space-4)',
 };
 
-const counterRow: CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: 'var(--space-6)',
-  fontFamily: 'var(--font-mono)',
-  fontSize: 'var(--fs-table)',
-};
-
-const counterCell: CSSProperties = {
-  padding: 'var(--space-4) var(--space-5)',
-  background: 'var(--bg-panel)',
-  border: 'var(--border-card)',
-  minWidth: 140,
-};
-
-const counterLabel: CSSProperties = {
-  display: 'block',
-  fontSize: 'var(--fs-label)',
-  color: 'var(--ink-mute)',
-  textTransform: 'uppercase',
-  letterSpacing: 'var(--ls-label)',
-  marginBottom: 'var(--space-1)',
-};
-
-const counterValue: CSSProperties = {
-  fontFamily: 'var(--font-serif)',
-  fontSize: 'var(--fs-medium)',
-  fontWeight: 400,
-  letterSpacing: 'var(--ls-medium)',
-  color: 'var(--ink)',
-  lineHeight: 1,
-};
-
-const errorStyle: CSSProperties = {
-  ...layout,
-  color: 'var(--neg)',
-  fontFamily: 'var(--font-mono)',
-};
-
-const muteStyle: CSSProperties = {
-  ...layout,
-  color: 'var(--ink-mute)',
-  fontFamily: 'var(--font-mono)',
-};
-
-const demoSection: CSSProperties = {
-  marginTop: 'var(--space-8)',
-  paddingTop: 'var(--space-8)',
-  borderTop: 'var(--border-soft)',
-};
-
-const demoSectionLabel: CSSProperties = {
-  fontFamily: 'var(--font-mono)',
-  fontSize: 'var(--fs-label-l)',
-  color: 'var(--ink-mute)',
-  textTransform: 'uppercase',
-  letterSpacing: 'var(--ls-label)',
-  marginBottom: 'var(--space-4)',
-};
-
-const demoTitle: CSSProperties = {
+const placeholderTitleStyle: CSSProperties = {
   fontFamily: 'var(--font-serif)',
   fontSize: 'var(--fs-section)',
   fontWeight: 400,
   letterSpacing: 'var(--ls-section)',
-  marginBottom: 'var(--space-6)',
+  margin: 0,
+  marginBottom: 'var(--space-3)',
 };
 
-const demoGrid: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-  gap: 'var(--space-6)',
+const placeholderCopyStyle: CSSProperties = {
+  fontFamily: 'var(--font-serif)',
+  fontStyle: 'italic',
+  fontSize: 'var(--fs-body)',
+  lineHeight: 'var(--lh-editorial)',
+  color: 'var(--ink-soft)',
+  maxWidth: '60ch',
+  margin: 0,
 };
 
-const demoCard: CSSProperties = {
-  padding: 'var(--space-5)',
-  background: 'var(--bg-panel)',
-  border: 'var(--border-card)',
+const summaryRowStyle: CSSProperties = {
+  marginTop: 'var(--space-7)',
   display: 'flex',
-  flexDirection: 'column',
-  gap: 'var(--space-3)',
-};
-
-const demoCardLabel: CSSProperties = {
+  flexWrap: 'wrap',
+  gap: 'var(--space-6)',
   fontFamily: 'var(--font-mono)',
-  fontSize: 'var(--fs-label)',
+  fontSize: 'var(--fs-label-l)',
   color: 'var(--ink-mute)',
   textTransform: 'uppercase',
   letterSpacing: 'var(--ls-label)',
 };
 
-const demoCardName: CSSProperties = {
-  fontFamily: 'var(--font-serif)',
-  fontSize: 'var(--fs-card)',
-  letterSpacing: 'var(--ls-card)',
-  color: 'var(--ink)',
+const summaryItemStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 'var(--space-1)',
 };
 
-const demoCardBody: CSSProperties = {
-  marginTop: 'var(--space-2)',
+const summaryValueStyle: CSSProperties = {
+  fontFamily: 'var(--font-serif)',
+  fontSize: 'var(--fs-medium)',
+  color: 'var(--ink)',
+  letterSpacing: 'var(--ls-medium)',
+  textTransform: 'none',
+  lineHeight: 1,
+};
+
+const errorBoxStyle: CSSProperties = {
+  fontFamily: 'var(--font-mono)',
+  fontSize: 'var(--fs-table)',
+  color: 'var(--neg)',
+  padding: 'var(--space-5)',
+  background: 'var(--bg-panel)',
+  border: '0.5px solid var(--neg)',
 };
 
 export default function App(): JSX.Element {
-  const [state, setState] = useState<LoadState>({ status: 'loading' });
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch('./data/indicators.json')
-      .then((response) => {
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return response.json() as Promise<IndicatorsFile>;
-      })
-      .then((data) => {
-        if (!cancelled) setState({ status: 'ready', data });
-      })
-      .catch((error: unknown) => {
-        if (!cancelled) {
-          setState({ status: 'error', error: String(error) });
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (state.status === 'loading') {
-    return <div style={muteStyle}>Carregando dados…</div>;
-  }
-  if (state.status === 'error') {
-    return <div style={errorStyle}>Erro: {state.error}</div>;
-  }
-
-  const { data } = state;
+  const { data, loading, error } = useIndicatorsFile();
 
   return (
-    <main style={layout}>
-      <h1 style={heroStyle}>
-        Mercado Imobiliário <em style={accentItalic}>EUA</em>
-      </h1>
-      <div style={labelStyle}>
-        Schema {data.schemaVersion} · gerado em {data.generatedAt}
-      </div>
-      <div style={counterRow} aria-label="Contagem de itens carregados">
-        <div style={counterCell}>
-          <span style={counterLabel}>Indicators</span>
-          <span style={counterValue}>{data.indicators.length}</span>
+    <AppLayout
+      header={<Header generatedAt={data?.generatedAt} schemaVersion={data?.schemaVersion} />}
+      footer={<Footer generatedAt={data?.generatedAt} schemaVersion={data?.schemaVersion} />}
+    >
+      <div style={stateLabelStyle}>Fase 4 · PR 4a</div>
+      <h2 style={placeholderTitleStyle}>Conteúdo do dashboard em construção</h2>
+      <p style={placeholderCopyStyle}>
+        O miolo da Variação D — Quadro Resumido (4 KPIs), Spotlight, Ledger
+        filtrável e Anexos de Regiões/Top Metros — chega nos PRs 4b, 4c e 4d.
+        Este placeholder mostra apenas o shell + a contagem dos itens
+        carregados pelo <code>useIndicatorsFile</code>.
+      </p>
+
+      {loading && (
+        <div style={{ ...summaryRowStyle, color: 'var(--ink-mute)' }}>
+          Carregando indicadores…
         </div>
-        <div style={counterCell}>
-          <span style={counterLabel}>Regions</span>
-          <span style={counterValue}>{data.regions.length}</span>
+      )}
+
+      {error && (
+        <div style={errorBoxStyle} role="alert">
+          Erro ao carregar dados: {error.message}
         </div>
-        <div style={counterCell}>
-          <span style={counterLabel}>Metros</span>
-          <span style={counterValue}>{data.metros.length}</span>
-        </div>
-        <div style={counterCell}>
-          <span style={counterLabel}>Events</span>
-          <span style={counterValue}>{data.events.length}</span>
-        </div>
-      </div>
+      )}
 
-      <section style={demoSection} aria-labelledby="charts-demo-title">
-        <div style={demoSectionLabel}>Fase 3 · PR 3b</div>
-        <h2 id="charts-demo-title" style={demoTitle}>
-          Chart Primitives Demo
-        </h2>
-        <div style={demoGrid}>
-          <div style={demoCard}>
-            <span style={demoCardLabel}>Sparkline</span>
-            <span style={demoCardName}>Tendência inline (ledger)</span>
-            <div style={demoCardBody}>
-              <Sparkline series={MOCK_SERIES} accent="var(--group-taxas)" width={280} />
-            </div>
+      {data && (
+        <div style={summaryRowStyle}>
+          <div style={summaryItemStyle}>
+            <span>Indicadores</span>
+            <span style={summaryValueStyle}>{data.indicators.length}</span>
           </div>
-
-          <div style={demoCard}>
-            <span style={demoCardLabel}>AreaChart</span>
-            <span style={demoCardName}>Spotlight série temporal</span>
-            <div style={demoCardBody}>
-              <AreaChart series={MOCK_SERIES} accent="var(--group-taxas)" width={300} height={140} />
-            </div>
+          <div style={summaryItemStyle}>
+            <span>Regiões</span>
+            <span style={summaryValueStyle}>{data.regions.length}</span>
           </div>
-
-          <div style={demoCard}>
-            <span style={demoCardLabel}>HBarSimple</span>
-            <span style={demoCardName}>Ranking região / metro</span>
-            <div style={demoCardBody}>
-              <HBarSimple
-                label="Northeast"
-                value={418}
-                max={1000}
-                valueLabel="US$ 418k"
-                accent="var(--group-precos)"
-              />
-            </div>
+          <div style={summaryItemStyle}>
+            <span>Metros</span>
+            <span style={summaryValueStyle}>{data.metros.length}</span>
           </div>
-
-          <div style={demoCard}>
-            <span style={demoCardLabel}>Donut</span>
-            <span style={demoCardName}>Score / composição single</span>
-            <div style={demoCardBody}>
-              <Donut value={34} accent="var(--group-oferta)" />
-            </div>
-          </div>
-
-          <div style={demoCard}>
-            <span style={demoCardLabel}>Gauge</span>
-            <span style={demoCardName}>NAHB HMI estilo</span>
-            <div style={demoCardBody}>
-              <Gauge value={67} centerLabel="67" accent="var(--group-sentimento)" />
-            </div>
+          <div style={summaryItemStyle}>
+            <span>Eventos</span>
+            <span style={summaryValueStyle}>{data.events.length}</span>
           </div>
         </div>
-      </section>
-    </main>
+      )}
+    </AppLayout>
   );
 }

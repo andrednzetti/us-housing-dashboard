@@ -1,0 +1,5 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AppLayout > renderiza com children vazios sem quebrar (loading state) 1`] = `"<div style="background:var(--bg);color:var(--ink);min-height:100vh;font-family:var(--font-sans);display:flex;flex-direction:column"><header>H</header><main style="flex:1;min-height:60vh;width:100%;max-width:var(--container-max);margin:0 auto;padding:var(--space-8) var(--space-12);box-sizing:border-box"></main><footer>F</footer></div>"`;
+
+exports[`AppLayout > renderiza header, main com children e footer na ordem correta 1`] = `"<div style="background:var(--bg);color:var(--ink);min-height:100vh;font-family:var(--font-sans);display:flex;flex-direction:column"><div data-test="hdr">HEADER</div><main style="flex:1;min-height:60vh;width:100%;max-width:var(--container-max);margin:0 auto;padding:var(--space-8) var(--space-12);box-sizing:border-box"><div data-test="main">CONTENT</div></main><div data-test="ftr">FOOTER</div></div>"`;
