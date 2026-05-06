@@ -1,15 +1,19 @@
-import { defineConfig } from 'vite';
+// `defineConfig` vem de `vitest/config` (que reexporta o do Vite + tipos do test).
+// Isso permite usar o bloco `test: { ... }` com type-safety completo.
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 /**
- * Vite config para o frontend React/TS do Dashboard Mercado Imobiliário EUA.
+ * Vite + Vitest config para o frontend React/TS do Dashboard
+ * Mercado Imobiliário EUA.
  *
  * - `base: '/'` → Vercel preview / GitHub Pages root.
  * - `viteStaticCopy` copia os arquivos JSON da raiz `data/` para
  *   `frontend/public/data/` no momento do build, garantindo que o frontend
  *   acesse `./data/indicators.json` e `./data/indicators.legacy.json` em
  *   runtime sem depender de cópia manual ou symlink.
+ * - Bloco `test` configura Vitest para src test files.
  */
 export default defineConfig({
   base: '/',
@@ -40,5 +44,18 @@ export default defineConfig({
     sourcemap: false,
     // Sinaliza no log o tamanho de cada chunk para validar critério < 200 KB gzip.
     reportCompressedSize: true,
+  },
+  test: {
+    // describe/it/expect globais (sem precisar importar)
+    globals: true,
+    // Helpers puros — não precisam de jsdom
+    environment: 'node',
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      include: ['src/lib/**/*.ts'],
+      exclude: ['src/lib/**/*.test.ts'],
+    },
   },
 });

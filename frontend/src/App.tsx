@@ -1,4 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react';
+import type { IndicatorsFile } from './types';
 
 /**
  * Hello world tokenizado da Fase 2 — prova quatro coisas de uma vez:
@@ -7,18 +8,11 @@ import { useEffect, useState, type CSSProperties } from 'react';
  *   3. fetch do JSON funciona e o tipo `IndicatorsFile` bate com o schema v2
  *   4. TypeScript strict não reclama
  *
- * O dashboard real (Variação D completa) é construído da Fase 4 em diante;
- * este componente é descartado naquele momento.
+ * Fase 3 PR 3a: tipo `IndicatorsFile` agora vem do módulo central de tipos
+ * (`src/types/`), espelhando exatamente `data/schema.json`. O dashboard real
+ * (Variação D completa) é construído da Fase 4 em diante; este componente
+ * é descartado naquele momento.
  */
-
-type IndicatorsFile = {
-  schemaVersion: string;
-  generatedAt: string;
-  indicators: ReadonlyArray<{ id: string; group: string; name: string; value: number }>;
-  regions: ReadonlyArray<{ name: string }>;
-  metros: ReadonlyArray<{ name: string }>;
-  events: ReadonlyArray<{ date: string; tag: string }>;
-};
 
 type LoadState =
   | { status: 'loading' }
