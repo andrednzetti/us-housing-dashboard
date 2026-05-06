@@ -59,6 +59,7 @@ export default defineConfig({
         'src/components/charts/**/*.tsx',
         'src/components/shell/**/*.tsx',
         'src/components/quadro/**/*.tsx',
+        'src/components/spotlight/**/*.tsx',
       ],
       exclude: [
         'src/lib/**/*.test.ts',
@@ -68,6 +69,8 @@ export default defineConfig({
         'src/components/shell/index.ts',
         'src/components/quadro/**/*.test.tsx',
         'src/components/quadro/index.ts',
+        'src/components/spotlight/**/*.test.tsx',
+        'src/components/spotlight/index.ts',
       ],
     },
   },

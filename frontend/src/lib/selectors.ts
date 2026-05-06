@@ -51,3 +51,22 @@ export function selectQuadroIndicators(file: IndicatorsFile): Indicator[] {
 
   return result;
 }
+
+/**
+ * ID âncora do Spotlight ("indicador da semana"). Mortgage30 é o anchor
+ * editorial da Variação D — o leitor entra no boletim já vendo a taxa.
+ */
+export const SPOTLIGHT_INDICATOR_ID = 'mortgage30';
+
+/**
+ * Seleciona o indicador em destaque (Spotlight). Implementação inicial
+ * hardcoded em `mortgage30`.
+ *
+ * TODO(post-Fase 5): regra de negócio — escolher por |delta| normalizado
+ * pela volatilidade histórica, ou via campo dedicado no schema (`spotlight: true`).
+ *
+ * @returns o indicador correspondente, ou `null` se ausente do payload.
+ */
+export function selectSpotlight(file: IndicatorsFile): Indicator | null {
+  return file.indicators.find((i) => i.id === SPOTLIGHT_INDICATOR_ID) ?? null;
+}
