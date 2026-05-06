@@ -98,3 +98,28 @@ export function fmtValue(value: number, spec: FmtSpec): string {
       return fmtK(value);
   }
 }
+
+/**
+ * Formata o delta de um indicador inline com unidade — espelha o `DDelta`
+ * do handoff (variation-d.jsx linhas 85-95):
+ *
+ *   - Sinal: `+` quando positivo, `±` quando zero, `-` natural via toFixed
+ *   - Decimais: 2 quando unidade é `'pp'`, senão 1
+ *   - Sem espaço entre número e unidade (ex.: `+0.18pp`, `-0.6m`, `±0.0pts`)
+ *
+ * Usado nos cards do Quadro Resumido e em qualquer outro consumer que
+ * precise da forma editorial inline. Para a cor visual, combine com
+ * `deltaColorFor(indicator)` de `sentiment.ts`.
+ *
+ * @example
+ *   fmtDelta(0.18, 'pp')     // '+0.18pp'
+ *   fmtDelta(-0.6,  'm')     // '-0.6m'
+ *   fmtDelta(0,     'pts')   // '±0.0pts'
+ *   fmtDelta(0.66,  '% a.a.') // '+0.7% a.a.'
+ */
+export function fmtDelta(value: number, unit: string): string {
+  const decimals = unit === 'pp' ? 2 : 1;
+  if (value === 0) return `±${(0).toFixed(decimals)}${unit}`;
+  const sign = value > 0 ? '+' : '';
+  return `${sign}${value.toFixed(decimals)}${unit}`;
+}
