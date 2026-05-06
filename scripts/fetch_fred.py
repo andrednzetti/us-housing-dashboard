@@ -101,13 +101,17 @@ SERIES = {
         "frequency": "Monthly",
         "source": "National Association of Realtors via FRED",
     },
-    "PHSI": {
-        "id": "PHSI",
-        "name": "Pending Home Sales Index",
+    # PHSI (NAR Pending Home Sales Index) removida no PR 1b bugfix:
+    # série retornava vazio do FRED há 3+ ciclos. Substituída por
+    # PENLISCOUUS (abaixo) — mesmo conceito (contratos em formação),
+    # série ativa e estável da Realtor.com via FRED.
+    "PENLISCOUUS": {
+        "id": "PENLISCOUUS",
+        "name": "Pending Listing Count",
         "group": "demand",
-        "unit": "Index (2001=100)",
+        "unit": "Count",
         "frequency": "Monthly",
-        "source": "National Association of Realtors via FRED",
+        "source": "Realtor.com via FRED",
     },
     "ACTLISCOUUS": {
         "id": "ACTLISCOUUS",
@@ -143,14 +147,9 @@ SERIES = {
         "source": "U.S. Census Bureau via FRED",
     },
     # Group 5 — Sentiment & Costs
-    "USHMI": {
-        "id": "USHMI",
-        "name": "NAHB Housing Market Index (HMI)",
-        "group": "sentiment",
-        "unit": "Index",
-        "frequency": "Monthly",
-        "source": "NAHB via FRED",
-    },
+    # USHMI (NAHB HMI via FRED) removida no PR 1b bugfix: série retornava
+    # vazio do FRED há 3+ ciclos. Migrada para scrape direto em
+    # fetch_scraped.py (NAHB_HMI), mesmo padrão usado para RMI.
     "WPU081": {
         "id": "WPU081",
         "name": "Lumber PPI",
@@ -188,9 +187,14 @@ SERIES = {
 
 FRED_BASE_URL = "https://api.stlouisfed.org/fred/series/observations"
 OBSERVATION_START = "2020-01-01"
-MAX_RETRIES = 3
-RETRY_WAITS = [2, 4, 8]
-REQUEST_DELAY = 0.3  # seconds between API calls
+
+# Resiliência reforçada (PR 1b bugfix): FRED apresenta falhas transitórias
+# em séries específicas (USHMI, PHSI, CUSR* etc). Aumentamos retries + backoff
+# exponencial. REQUEST_DELAY=0.5s mantém folga sobre o rate limit FRED de
+# 120 req/min (nosso máximo seria ~30s para 20 séries com 5 retries cada).
+MAX_RETRIES = 5
+RETRY_WAITS = [1, 2, 4, 8, 16]  # exponencial; total ~31s no pior caso por série
+REQUEST_DELAY = 0.5  # seconds between API calls
 
 
 def fetch_series(series_id: str, api_key: str) -> list[dict] | None:
@@ -203,9 +207,13 @@ def fetch_series(series_id: str, api_key: str) -> list[dict] | None:
         "sort_order": "asc",
     }
 
+    last_err: Exception | None = None
+    last_status: int | None = None
+
     for attempt in range(MAX_RETRIES):
         try:
             resp = requests.get(FRED_BASE_URL, params=params, timeout=30)
+            last_status = resp.status_code
             resp.raise_for_status()
             data = resp.json()
             observations = data.get("observations", [])
@@ -222,14 +230,24 @@ def fetch_series(series_id: str, api_key: str) -> list[dict] | None:
                         continue
             return valid
         except requests.RequestException as e:
+            last_err = e
+            # Captura status code se a request chegou a obter resposta HTTP
+            if hasattr(e, "response") and e.response is not None:
+                last_status = e.response.status_code
             if attempt < MAX_RETRIES - 1:
                 wait = RETRY_WAITS[attempt]
-                print(f"  [RETRY] {series_id} attempt {attempt+1} failed: {e}. "
-                      f"Waiting {wait}s...")
+                print(
+                    f"  [RETRY] {series_id} attempt {attempt+1}/{MAX_RETRIES} "
+                    f"failed: {e}. Waiting {wait}s..."
+                )
                 time.sleep(wait)
-            else:
-                print(f"  [ERROR] {series_id} failed after {MAX_RETRIES} attempts: {e}")
-                return None
+
+    # Esgotaram-se as tentativas
+    err_type = type(last_err).__name__ if last_err else "Unknown"
+    short_msg = (str(last_err)[:80] if last_err else "no error captured").replace("\n", " ")
+    status_str = str(last_status) if last_status is not None else "N/A"
+    print(f"  [FAIL] {series_id}: {err_type} ({status_str}) - {short_msg}")
+    return None
 
 
 def compute_changes(observations: list[dict], frequency: str) -> dict:
@@ -290,9 +308,12 @@ def main():
     output = {}
     ok_count = 0
     error_count = 0
+    failed_ids: list[str] = []
 
     print(f"Fetching {len(SERIES)} series from FRED API...")
-    print(f"Observation start: {OBSERVATION_START}\n")
+    print(f"Observation start: {OBSERVATION_START}")
+    print(f"Retries: {MAX_RETRIES}, backoff: {RETRY_WAITS}s, "
+          f"delay between series: {REQUEST_DELAY}s\n")
 
     for key, meta in SERIES.items():
         print(f"  Fetching {key} ({meta['name']})...", end=" ")
@@ -310,6 +331,7 @@ def main():
             ok_count += 1
         else:
             error_count += 1
+            failed_ids.append(key)
             print("FAILED")
 
         time.sleep(REQUEST_DELAY)
@@ -323,10 +345,16 @@ def main():
 
     print(f"\n{'='*50}")
     print(f"FRED fetch complete: {ok_count} OK, {error_count} errors")
+    if failed_ids:
+        print(f"Loaded {ok_count}/{len(SERIES)} series from FRED. "
+              f"Failed: {failed_ids}")
+    else:
+        print(f"Loaded {ok_count}/{len(SERIES)} series from FRED. All series OK.")
     print(f"Output: {out_path} ({os.path.getsize(out_path) / 1024:.1f} KB)")
 
     if error_count > 0:
-        print("[WARNING] Some series failed. Check logs above.")
+        print("[WARNING] Some series failed. merge_data.py may apply "
+              "last-known-good fallback for missing indicators.")
         if error_count == len(SERIES):
             print("[FATAL] All series failed!")
             sys.exit(1)

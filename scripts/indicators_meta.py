@@ -5,7 +5,10 @@ ATENÇÃO — este módulo é apenas referência declarativa para PR 1a.
 Não é consumido por `merge_data.py` nem pelo frontend ainda; isso ocorre no PR 1b.
 
 Estrutura de cada entrada:
-  - fred_id:       ID da série no FRED (ou marcador para séries scraped/computadas)
+  - raw_key:       chave de lookup no dict mesclado (fred_raw + scraped_raw + derived).
+                   Para a maioria dos indicadores é o ID FRED real (ex.: MORTGAGE30US);
+                   para `cpi_shelter` é o derivado `cpi_shelter_yoy`; para
+                   `affordability` é o derivado `affordability`.
   - group:         taxas | precos | oferta | sentimento | macro
   - name:          nome completo (PT-BR)
   - short:         label curto uppercase para ledger/KPI (Variação D)
@@ -55,7 +58,7 @@ FmtSpec = FmtSpecPct | FmtSpecUSD | FmtSpecNum | FmtSpecK
 
 
 class IndicatorMeta(TypedDict):
-    fred_id: str
+    raw_key: str
     group: Literal["taxas", "precos", "oferta", "sentimento", "macro"]
     name: str
     short: str
@@ -74,7 +77,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
     # TAXAS & CRÉDITO  (6)
     # ──────────────────────────────────────────────────────────────────
     "mortgage30": {
-        "fred_id": "MORTGAGE30US",
+        "raw_key": "MORTGAGE30US",
         "group": "taxas",
         "name": "Mortgage 30Y Fixa",
         "short": "30Y MORTGAGE",
@@ -88,7 +91,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": True,
     },
     "mortgage15": {
-        "fred_id": "MORTGAGE15US",
+        "raw_key": "MORTGAGE15US",
         "group": "taxas",
         "name": "Mortgage 15Y Fixa",
         "short": "15Y MORTGAGE",
@@ -102,7 +105,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": True,
     },
     "fed_funds": {
-        "fred_id": "FEDFUNDS",
+        "raw_key": "FEDFUNDS",
         "group": "taxas",
         "name": "Fed Funds Rate",
         "short": "FED FUNDS",
@@ -116,7 +119,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": True,
     },
     "treasury10": {
-        "fred_id": "DGS10",
+        "raw_key": "DGS10",
         "group": "taxas",
         "name": "Treasury 10Y",
         "short": "10Y UST",
@@ -130,7 +133,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": True,
     },
     "mba_purch": {
-        "fred_id": "MBA_PURCH",  # série scraped, sem FRED ID real
+        "raw_key": "MBA_PURCH",  # série scraped, sem FRED ID real
         "group": "taxas",
         "name": "MBA Purchase Applications",
         "short": "MBA PURCH",
@@ -144,7 +147,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": False,
     },
     "mba_refi": {
-        "fred_id": "MBA_REFI",  # série scraped, sem FRED ID real
+        "raw_key": "MBA_REFI",  # série scraped, sem FRED ID real
         "group": "taxas",
         "name": "MBA Refinance Applications",
         "short": "MBA REFI",
@@ -162,7 +165,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
     # PREÇOS  (3)
     # ──────────────────────────────────────────────────────────────────
     "cs_national": {
-        "fred_id": "CSUSHPISA",
+        "raw_key": "CSUSHPISA",
         "group": "precos",
         "name": "Case-Shiller Nacional",
         "short": "CASE-SHILLER",
@@ -176,7 +179,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": False,
     },
     "median_price": {
-        "fred_id": "MSPUS",
+        "raw_key": "MSPUS",
         "group": "precos",
         "name": "Preço Mediano de Vendas",
         "short": "MEDIAN PRICE",
@@ -190,7 +193,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": False,
     },
     "fhfa": {
-        "fred_id": "USSTHPI",
+        "raw_key": "USSTHPI",
         "group": "precos",
         "name": "FHFA House Price Index",
         "short": "FHFA HPI",
@@ -208,7 +211,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
     # OFERTA & CONSTRUÇÃO  (7)
     # ──────────────────────────────────────────────────────────────────
     "housing_starts": {
-        "fred_id": "HOUST",
+        "raw_key": "HOUST",
         "group": "oferta",
         "name": "Housing Starts (SAAR)",
         "short": "STARTS",
@@ -222,7 +225,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": False,
     },
     "building_permits": {
-        "fred_id": "PERMIT",
+        "raw_key": "PERMIT",
         "group": "oferta",
         "name": "Building Permits (SAAR)",
         "short": "PERMITS",
@@ -236,7 +239,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": False,
     },
     "new_home_sales": {
-        "fred_id": "HSN1F",
+        "raw_key": "HSN1F",
         "group": "oferta",
         "name": "New Home Sales (SAAR)",
         "short": "NEW SALES",
@@ -250,7 +253,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": False,
     },
     "existing_sales": {
-        "fred_id": "EXHOSLUSM495S",
+        "raw_key": "EXHOSLUSM495S",
         "group": "oferta",
         "name": "Existing Home Sales (SAAR)",
         "short": "EXISTING",
@@ -264,7 +267,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": False,
     },
     "months_supply": {
-        "fred_id": "MSACSR",
+        "raw_key": "MSACSR",
         "group": "oferta",
         "name": "Months of Supply",
         "short": "SUPPLY",
@@ -278,7 +281,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": True,
     },
     "completions": {
-        "fred_id": "COMPUTSA",
+        "raw_key": "COMPUTSA",
         "group": "oferta",
         "name": "Housing Completions (SAAR)",
         "short": "COMPLETIONS",
@@ -292,7 +295,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": False,
     },
     "active_listings": {
-        "fred_id": "ACTLISCOUUS",
+        "raw_key": "ACTLISCOUUS",
         "group": "oferta",
         "name": "Active Listings",
         "short": "LISTINGS",
@@ -310,7 +313,9 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
     # SENTIMENTO & ATIVIDADE  (3)
     # ──────────────────────────────────────────────────────────────────
     "nahb": {
-        "fred_id": "USHMI",
+        # PR 1b bugfix: USHMI no FRED está retornando vazio há 3+ ciclos.
+        # Migrado para scrape direto (NAHB_HMI gerado em fetch_scraped.py).
+        "raw_key": "NAHB_HMI",
         "group": "sentimento",
         "name": "NAHB Housing Market Index",
         "short": "NAHB HMI",
@@ -318,13 +323,13 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "fmt_spec": {"type": "num", "decimals": 0},
         "delta_unit": "pts",
         "delta_period": "mês",
-        "source": "NAHB via FRED",
+        "source": "NAHB · scrap",
         "why": "Sentimento de construtores. > 50 = otimismo predominante.",
         "sentiment": "positive",
         "up_is_bad": False,
     },
     "rmi": {
-        "fred_id": "RMI",  # série scraped
+        "raw_key": "RMI",  # série scraped
         "group": "sentimento",
         "name": "Remodeling Market Index",
         "short": "RMI",
@@ -338,16 +343,20 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": False,
     },
     "pending": {
-        "fred_id": "PHSI",
+        # PR 1b bugfix: PHSI (NAR Pending Home Sales Index) está retornando
+        # vazio do FRED há 3+ ciclos. Substituído por PENLISCOUUS (Pending
+        # Listing Count, Realtor.com via FRED) — série ativa e estável,
+        # mesmo conceito (contratos em formação) com unidade diferente.
+        "raw_key": "PENLISCOUUS",
         "group": "sentimento",
-        "name": "Pending Home Sales",
+        "name": "Pending Listings",
         "short": "PENDING",
-        "unit": "idx",
-        "fmt_spec": {"type": "num", "decimals": 1},
+        "unit": "k",
+        "fmt_spec": {"type": "k"},
         "delta_unit": "%",
         "delta_period": "mês",
-        "source": "NAR via FRED",
-        "why": "Contratos assinados (ainda não fechados). Antecede existing sales em 1-2 meses.",
+        "source": "Realtor.com · FRED",
+        "why": "Listagens em status 'pending' (contratos em formação). Sinal antecedente de demanda real.",
         "sentiment": "positive",
         "up_is_bad": False,
     },
@@ -356,7 +365,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
     # MACRO & ACESSIBILIDADE  (4)
     # ──────────────────────────────────────────────────────────────────
     "unemployment": {
-        "fred_id": "UNRATE",
+        "raw_key": "UNRATE",
         "group": "macro",
         "name": "Taxa de Desemprego",
         "short": "UNEMPLOYMENT",
@@ -370,7 +379,9 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": True,
     },
     "cpi_shelter": {
-        "fred_id": "CUSR0000SAH1",  # nível bruto; YoY é derivado em compute_derived.py
+        # raw_key aponta para o derivado YoY (não para o nível bruto CUSR0000SAH1,
+        # que serve apenas como input em compute_derived.py).
+        "raw_key": "cpi_shelter_yoy",
         "group": "macro",
         "name": "CPI Shelter (12m YoY)",
         "short": "CPI SHELTER",
@@ -384,7 +395,8 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": True,
     },
     "affordability": {
-        "fred_id": "_computed_",  # marcador — série computada em compute_derived.py
+        # raw_key aponta para a série computada em compute_derived.py
+        "raw_key": "affordability",
         "group": "macro",
         "name": "Affordability Index",
         "short": "AFFORDABILITY",
@@ -398,7 +410,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": False,
     },
     "lumber": {
-        "fred_id": "WPU081",
+        "raw_key": "WPU081",
         "group": "macro",
         "name": "Lumber PPI",
         "short": "LUMBER",

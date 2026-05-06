@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://andrednzetti.github.io/us-housing-dashboard/schema/v2.json",
+  "title": "US Housing Dashboard — Data Schema v2",
+  "description": "Schema do payload servido em data/indicators.json (Fase 1 PR 1b).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "generatedAt",
+    "indicators",
+    "regions",
+    "metros",
+    "events"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "2.0",
+      "description": "Versão do schema. Bump manual em mudanças incompatíveis."
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp ISO 8601 da geração do payload."
+    },
+    "indicators": {
+      "type": "array",
+      "minItems": 23,
+      "maxItems": 23,
+      "description": "Os 23 indicadores finais (taxas, preços, oferta, sentimento, macro).",
+      "items": { "$ref": "#/$defs/Indicator" }
+    },
+    "regions": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "description": "Quatro regiões censitárias (Northeast, Midwest, South, West).",
+      "items": { "$ref": "#/$defs/Region" }
+    },
+    "metros": {
+      "type": "array",
+      "minItems": 8,
+      "description": "Top metros (≥8). Hoje 8 do Sun Belt; mais podem ser adicionados.",
+      "items": { "$ref": "#/$defs/Metro" }
+    },
+    "events": {
+      "type": "array",
+      "description": "Timeline editorial de eventos recentes. Pode ser vazio (fallback).",
+      "items": { "$ref": "#/$defs/Event" }
+    }
+  },
+  "$defs": {
+    "Indicator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "group",
+        "name",
+        "short",
+        "value",
+        "unit",
+        "fmtSpec",
+        "delta",
+        "deltaUnit",
+        "deltaPeriod",
+        "series",
+        "source",
+        "why",
+        "sentiment"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "snake_case stable identifier."
+        },
+        "group": {
+          "enum": ["taxas", "precos", "oferta", "sentimento", "macro"]
+        },
+        "name": { "type": "string", "minLength": 1 },
+        "short": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Label curto uppercase para ledger/KPI (ex.: 30Y MORTGAGE)."
+        },
+        "value": { "type": "number" },
+        "unit": { "type": "string", "minLength": 1 },
+        "fmtSpec": { "$ref": "#/$defs/FmtSpec" },
+        "delta": { "type": "number" },
+        "deltaUnit": {
+          "enum": ["pp", "%", "% a.a.", "pts", "pt", "m", "idx"]
+        },
+        "deltaPeriod": {
+          "enum": ["sem", "mês", "tri", "12m", "30d"]
+        },
+        "series": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "type": "number" }
+        },
+        "source": { "type": "string", "minLength": 1 },
+        "why": { "type": "string", "minLength": 1 },
+        "sentiment": {
+          "enum": ["positive", "neutral", "negative"]
+        },
+        "upIsBad": { "type": "boolean" }
+      }
+    },
+    "FmtSpec": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": { "const": "pct" },
+            "decimals": { "type": "integer", "minimum": 0, "maximum": 4 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": { "const": "usd" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": { "const": "num" },
+            "decimals": { "type": "integer", "minimum": 0, "maximum": 4 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": { "const": "k" }
+          }
+        }
+      ]
+    },
+    "Region": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "price", "yoy", "sales", "hot"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "price": { "type": "number", "exclusiveMinimum": 0 },
+        "yoy": { "type": "number" },
+        "sales": { "type": "number", "minimum": 0 },
+        "hot": { "type": "boolean" }
+      }
+    },
+    "Metro": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "price", "yoy", "dom", "hot"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "price": { "type": "number", "exclusiveMinimum": 0 },
+        "yoy": { "type": "number" },
+        "dom": { "type": "number", "minimum": 0, "description": "Days on market." },
+        "hot": { "type": "boolean" }
+      }
+    },
+    "Event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "tag", "text"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "description": "ISO 8601 date (YYYY-MM-DD)."
+        },
+        "tag": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9 _-]*$",
+          "minLength": 1,
+          "maxLength": 16
+        },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

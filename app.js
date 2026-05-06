@@ -111,12 +111,15 @@
 
   async function loadData() {
     try {
-      const resp = await fetch("data/indicators.json");
+      // PR 1b: legacy frontend agora consome o output v1 dedicado.
+      // O arquivo data/indicators.json passou para schema v2 (consumido pelo
+      // novo frontend React). data/indicators.legacy.json mantém o formato v1.
+      const resp = await fetch("data/indicators.legacy.json");
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       DATA = await resp.json();
     } catch (err) {
       console.error("Failed to load data:", err);
-      showError("Erro ao carregar dados. Verifique se data/indicators.json existe.");
+      showError("Erro ao carregar dados. Verifique se data/indicators.legacy.json existe.");
       return;
     }
     try {
