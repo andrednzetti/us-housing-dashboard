@@ -60,6 +60,7 @@ export default defineConfig({
         'src/components/shell/**/*.tsx',
         'src/components/quadro/**/*.tsx',
         'src/components/spotlight/**/*.tsx',
+        'src/components/ledger/**/*.tsx',
       ],
       exclude: [
         'src/lib/**/*.test.ts',
@@ -71,6 +72,8 @@ export default defineConfig({
         'src/components/quadro/index.ts',
         'src/components/spotlight/**/*.test.tsx',
         'src/components/spotlight/index.ts',
+        'src/components/ledger/**/*.test.tsx',
+        'src/components/ledger/index.ts',
       ],
     },
   },
