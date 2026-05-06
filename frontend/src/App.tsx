@@ -4,7 +4,9 @@
  * Fase 4 PR 4a: shell editorial + hook.
  * Fase 4 PR 4b: QuadroResumido.
  * Fase 4 PR 4c-1: Spotlight (card principal — sem aside ainda).
- * Restante (Ledger 4c-2, Aside do Spotlight 4c-3, Anexos 4d) em PRs futuros.
+ * Fase 4 PR 4c-2: Ledger plano + interação Ledger ↔ Spotlight via lift do
+ *                  estado `selected` neste componente.
+ * Restante (Aside do Spotlight 4c-3, Anexos 4d) em PRs futuros.
  *
  * Histórico:
  *   - Fase 2: hello world tokenizado provando tokens + fonts + JSON fetch
@@ -12,10 +14,14 @@
  *   - Fase 3 PR 3b: 5 chart primitives SVG (demo descartável removida)
  *   - Fase 4 PR 4a: shell + hook
  *   - Fase 4 PR 4b: QuadroResumido
- *   - Fase 4 PR 4c-1: Spotlight card principal (este arquivo)
+ *   - Fase 4 PR 4c-1: Spotlight card principal
+ *   - Fase 4 PR 4c-2: Ledger + estado `selected` (este arquivo)
  */
 
+import { useState } from 'react';
 import type { CSSProperties, JSX } from 'react';
+import type { Indicator } from './types';
+import { Ledger } from './components/ledger';
 import { QuadroResumido } from './components/quadro';
 import { AppLayout, Footer, Header } from './components/shell';
 import { Spotlight } from './components/spotlight';
@@ -51,8 +57,16 @@ const placeholderStyle: CSSProperties = {
   letterSpacing: 'var(--ls-label)',
 };
 
+const sectionGapStyle: CSSProperties = { marginTop: 'var(--space-8)' };
+
 export default function App(): JSX.Element {
   const { data, loading, error } = useIndicatorsFile();
+  // Lift estado: o Ledger atualiza este `selected` ao clicar numa linha,
+  // e o Spotlight reage. Default é null — o `effectiveSelected` cai para
+  // `selectSpotlight(data)` (mortgage30) enquanto não houve interação.
+  const [selected, setSelected] = useState<Indicator | null>(null);
+  const effectiveSelected =
+    selected ?? (data ? selectSpotlight(data) : null);
 
   return (
     <AppLayout
@@ -70,16 +84,20 @@ export default function App(): JSX.Element {
       {data && (
         <>
           <QuadroResumido file={data} />
-          {(() => {
-            const spotlight = selectSpotlight(data);
-            return spotlight ? (
-              <div style={{ marginTop: 'var(--space-8)' }}>
-                <Spotlight indicator={spotlight} />
-              </div>
-            ) : null;
-          })()}
+          {effectiveSelected && (
+            <div style={sectionGapStyle}>
+              <Spotlight indicator={effectiveSelected} />
+            </div>
+          )}
+          <div style={sectionGapStyle}>
+            <Ledger
+              file={data}
+              selected={effectiveSelected}
+              onSelect={setSelected}
+            />
+          </div>
           <div style={placeholderStyle}>
-            Ledger · Aside do Spotlight · Anexos — próximos PRs (4c-2 · 4c-3 · 4d)
+            Aside do Spotlight · Anexos — próximos PRs (4c-3 · 4d)
           </div>
         </>
       )}
