@@ -40,5 +40,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/indicators.json
+          # Stage both v2 and legacy v1 outputs (PR 1b dual output).
+          # `indicators.legacy.json` é alimentado pelo `app.js` do legacy
+          # frontend até o cutover na Fase 5; sem este `git add`, o arquivo
+          # nunca chega ao branch e produção quebra com 404.
+          git add data/indicators.json data/indicators.legacy.json
           git diff --cached --quiet && echo "No data changes detected, skipping commit." || (git commit -m "chore: update indicators $(date -u +%Y-%m-%d) [skip ci]" && git push)
