@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { fmtK, fmtNum, fmtPct, fmtUSD, fmtValue } from './format';
+import { fmtDelta, fmtK, fmtNum, fmtPct, fmtUSD, fmtValue } from './format';
 
 describe('fmtPct', () => {
   it('formata positivo com sinal explícito (+)', () => {
@@ -133,5 +133,40 @@ describe('fmtValue dispatcher', () => {
     expect(fmtValue(1, { type: 'usd' })).toContain('US$');
     expect(fmtValue(1, { type: 'num' })).toBe('1');
     expect(fmtValue(1, { type: 'k' })).toBe('1');
+  });
+});
+
+describe('fmtDelta', () => {
+  it('formata delta positivo com sinal +', () => {
+    expect(fmtDelta(0.18, 'pp')).toBe('+0.18pp');
+  });
+
+  it('formata delta negativo com sinal natural -', () => {
+    expect(fmtDelta(-0.6, 'm')).toBe('-0.6m');
+  });
+
+  it('formata zero com símbolo ± e decimais corretos', () => {
+    expect(fmtDelta(0, 'pts')).toBe('±0.0pts');
+  });
+
+  it('usa 2 decimais quando unidade é pp', () => {
+    expect(fmtDelta(0.184, 'pp')).toBe('+0.18pp');
+  });
+
+  it('usa 1 decimal para unidades não-pp', () => {
+    expect(fmtDelta(3.46, '%')).toBe('+3.5%');
+  });
+
+  it('lida com unidade composta (% a.a.)', () => {
+    expect(fmtDelta(0.66, '% a.a.')).toBe('+0.7% a.a.');
+  });
+
+  it('lida com idx/pt e outras unidades curtas', () => {
+    expect(fmtDelta(2, 'idx')).toBe('+2.0idx');
+    expect(fmtDelta(-1, 'pt')).toBe('-1.0pt');
+  });
+
+  it('zero negativo (-0) também é tratado como zero (±)', () => {
+    expect(fmtDelta(-0, 'pp')).toBe('±0.00pp');
   });
 });

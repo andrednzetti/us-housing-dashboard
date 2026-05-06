@@ -18,23 +18,9 @@
  */
 
 import type { CSSProperties, JSX } from 'react';
+import { PT_BR_MONTHS_ABBR } from '../../lib/dates';
 import { DissenhaWordmark } from './dissenha-mark';
 import { Stamp } from './stamp';
-
-const PT_BR_MONTHS_ABBR = [
-  'JAN',
-  'FEV',
-  'MAR',
-  'ABR',
-  'MAI',
-  'JUN',
-  'JUL',
-  'AGO',
-  'SET',
-  'OUT',
-  'NOV',
-  'DEZ',
-] as const;
 
 /** Formata `2026-05-06T17:44:11Z` → `06 · MAI · 2026` em UTC. */
 function formatBoletimDate(iso: string): string {
