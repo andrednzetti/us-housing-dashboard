@@ -11,16 +11,21 @@ import os
 import sys
 from datetime import datetime, timezone
 
+# Importação local: módulo de derivados (Fase 1 PR 1a).
+# Mantém schema v1 do output — produz entradas no mesmo formato dos series FRED.
+import compute_derived
+
 MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024  # 2 MB
 OBSERVATION_START = "2020-01-01"
 
-GROUP_ORDER = ["rates", "supply", "demand", "prices", "sentiment"]
+GROUP_ORDER = ["rates", "supply", "demand", "prices", "sentiment", "macro"]
 GROUP_LABELS = {
     "rates": "Rates & Financing",
     "supply": "Supply",
     "demand": "Demand",
     "prices": "Prices",
     "sentiment": "Sentiment & Costs",
+    "macro": "Macro & Affordability",
 }
 
 
@@ -57,8 +62,21 @@ def main():
     scraped_data = load_json(scraped_path)
     print(f"  Loaded {len(scraped_data)} series from scraping")
 
-    # Merge
-    merged = {**fred_data, **scraped_data}
+    # Compute derived series (Fase 1 PR 1a).
+    # Falha parcial é tolerada: se um derivado não puder ser computado (input
+    # ausente, histórico insuficiente), ele é simplesmente omitido.
+    print("\nComputing derived series...")
+    derived: dict = {}
+    affordability = compute_derived.compute_affordability_series(fred_data)
+    if affordability is not None:
+        derived["affordability"] = affordability
+    cpi_yoy = compute_derived.compute_cpi_shelter_yoy(fred_data)
+    if cpi_yoy is not None:
+        derived["cpi_shelter_yoy"] = cpi_yoy
+    print(f"  Computed {len(derived)} derived series")
+
+    # Merge — derivados ganham precedência se houver colisão de chave (não há, mas é defensivo).
+    merged = {**fred_data, **scraped_data, **derived}
     total = len(merged)
     print(f"\nMerged total: {total} series")
 
