@@ -99,6 +99,10 @@
           "minItems": 2,
           "items": { "type": "number" }
         },
+        "frequency": {
+          "enum": ["Weekly", "Monthly", "Quarterly", "Daily"],
+          "description": "Frequência nativa da série. Determina o truncamento aplicado em merge_data.py (POINTS_BY_FREQUENCY) e a unidade de subtração para os labels do X axis no Spotlight."
+        },
         "source": { "type": "string", "minLength": 1 },
         "why": { "type": "string", "minLength": 1 },
         "sentiment": {

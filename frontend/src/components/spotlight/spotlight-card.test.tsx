@@ -57,6 +57,52 @@ describe('SpotlightCard', () => {
     expect(html).toMatchSnapshot();
   });
 
+  it('com frequency=Weekly + generatedAt produz X axis com datas absolutas', () => {
+    const ind = mockIndicator({
+      id: 'mortgage30',
+      name: 'Mortgage 30Y Fixa',
+      group: 'taxas',
+      value: 6.3,
+      fmtSpec: { type: 'pct', decimals: 2 },
+      delta: 0.07,
+      deltaUnit: 'pp',
+      deltaPeriod: 'sem',
+      frequency: 'Weekly',
+      series: Array.from({ length: 260 }, (_, i) => 5.5 + i * 0.005),
+      source: 'Freddie Mac',
+      why: 'Custo do financiamento residencial.',
+      upIsBad: true,
+    });
+    const html = renderToStaticMarkup(
+      <SpotlightCard indicator={ind} generatedAt="2026-05-06T17:44:11Z" />,
+    );
+    // Default period 1A → 5 labels MMM/AA, sendo o último MAI/26
+    expect(html).toContain('MAI/26');
+    expect(html).not.toContain('−12M'); // não usa fallback relativo
+    expect(html).toMatchSnapshot();
+  });
+
+  it('com frequency=Weekly + 5A → 6 anos AAAA na linha do tempo', () => {
+    const ind = mockIndicator({
+      id: 'mortgage30',
+      frequency: 'Weekly',
+      series: Array.from({ length: 260 }, (_, i) => i * 0.01),
+    });
+    const html = renderToStaticMarkup(
+      <SpotlightCard
+        indicator={ind}
+        generatedAt="2026-05-06T17:44:11Z"
+        initialPeriod="5A"
+      />,
+    );
+    expect(html).toContain('2021');
+    expect(html).toContain('2026');
+    // Bug original 1A==5A: o slice de 5A agora tem 260 pts (era 52),
+    // diferente do slice 1A (52 pts). Cobertura indireta via diferença
+    // de labels entre snapshots.
+    expect(html).toMatchSnapshot();
+  });
+
   it('NAHB-like (group sentimento, fmtSpec num decimals 0)', () => {
     const ind = mockIndicator({
       id: 'nahb',

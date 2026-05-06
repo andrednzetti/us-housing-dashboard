@@ -45,7 +45,25 @@ from static_data import REGIONS, METROS
 
 MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024  # 2 MB
 OBSERVATION_START = "2020-01-01"
-MAX_SERIES_POINTS = 52  # último ano para weekly, ~4 anos para monthly, etc.
+
+# Truncamento da série exposta no payload v2 — parametrizado por frequência
+# para garantir que os botões de período do Spotlight (1M/3M/6M/1A/5A) tenham
+# pontos suficientes para mostrar curvas distintas em todas as escalas.
+#
+# Antes da Fase 4 housekeeping, era uma constante única (52) — o que fazia
+# 1A e 5A renderizarem a mesma curva para indicadores weekly. Agora cada
+# frequência tem seu teto:
+#   - Weekly:    260 pts ≈ 5 anos
+#   - Monthly:    60 pts ≈ 5 anos
+#   - Quarterly:  20 pts ≈ 5 anos
+#   - Daily:     260 pts ≈ 1 ano (5 anos seriam ~1300 pts; aceitamos compressão)
+POINTS_BY_FREQUENCY = {
+    "Weekly":    260,
+    "Monthly":    60,
+    "Quarterly":  20,
+    "Daily":     260,
+}
+DEFAULT_MAX_POINTS = 60  # fallback para frequência ausente/desconhecida
 
 # Last-known-good fallback (PR 1b bugfix): se um indicador esperado estiver
 # ausente após o merge raw, tenta recuperar do indicators.json anterior
@@ -343,7 +361,11 @@ def compute_delta(
 
 def build_v2_indicator(meta_id: str, meta: dict, raw_entry: dict) -> dict:
     obs = raw_entry.get("observations") or []
-    series_values = [o["value"] for o in obs[-MAX_SERIES_POINTS:]]
+    # Frequência vem do raw entry (FRED, scraped, e derivados — todos populam).
+    # Se ausente, default Monthly para não estourar os JSONs com séries grandes.
+    frequency = raw_entry.get("frequency") or "Monthly"
+    max_points = POINTS_BY_FREQUENCY.get(frequency, DEFAULT_MAX_POINTS)
+    series_values = [o["value"] for o in obs[-max_points:]]
     delta = compute_delta(obs, meta["delta_unit"], meta["delta_period"])
     indicator: dict[str, Any] = {
         "id": meta_id,
@@ -357,6 +379,7 @@ def build_v2_indicator(meta_id: str, meta: dict, raw_entry: dict) -> dict:
         "deltaUnit": meta["delta_unit"],
         "deltaPeriod": meta["delta_period"],
         "series": series_values,
+        "frequency": frequency,
         "source": meta["source"],
         "why": meta["why"],
         "sentiment": meta["sentiment"],

@@ -19,6 +19,7 @@ export type {
   DeltaPeriod,
   DeltaUnit,
   Indicator,
+  IndicatorFrequency,
   Sentiment,
 } from './indicator';
 export type { Region } from './region';

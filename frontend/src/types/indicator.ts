@@ -18,6 +18,15 @@ export type DeltaUnit = 'pp' | '%' | '% a.a.' | 'pts' | 'pt' | 'm' | 'idx';
 export type DeltaPeriod = 'sem' | 'mês' | 'tri' | '12m' | '30d';
 
 /**
+ * Frequência nativa da série. Determina o truncamento aplicado em
+ * `merge_data.py` (POINTS_BY_FREQUENCY) e a unidade de subtração para
+ * os labels do X axis no Spotlight.
+ *
+ * Espelha `properties.frequency` em `data/schema.json`.
+ */
+export type IndicatorFrequency = 'Weekly' | 'Monthly' | 'Quarterly' | 'Daily';
+
+/**
  * Indicador exibido no dashboard. Espelha exatamente o `$defs.Indicator`
  * em `data/schema.json`.
  *
@@ -57,6 +66,12 @@ export interface Indicator {
    * `number | undefined`. Tratar essa possibilidade nos consumers.
    */
   series: number[];
+  /**
+   * Frequência nativa da série — populado pelo pipeline a partir do raw FRED
+   * / scraped / derived. Optional para retrocompat com data antigo (pré
+   * housekeeping pré-Fase 5).
+   */
+  frequency?: IndicatorFrequency;
   /** Atribuição editorial. Ex.: `Freddie Mac`, `BLS via FRED`. */
   source: string;
   /** Por que importa (1-2 frases, didático, PT-BR). */

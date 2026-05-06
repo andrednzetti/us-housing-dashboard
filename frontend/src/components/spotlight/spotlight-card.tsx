@@ -37,7 +37,12 @@ import { AreaChart } from '../charts';
 import { fmtDelta, fmtValue } from '../../lib/format';
 import { GROUPS } from '../../lib/groups';
 import { deltaColorFor, deltaCssVar } from '../../lib/sentiment';
-import { seriesStats, sliceSeriesByPeriod, xAxisLabelsForPeriod } from '../../lib/series';
+import {
+  seriesStats,
+  sliceSeriesByPeriod,
+  xAxisLabelsForIndicator,
+  xAxisLabelsForPeriod,
+} from '../../lib/series';
 import { PeriodTabs } from './period-tabs';
 
 const PLACEHOLDER = '—';
@@ -177,12 +182,22 @@ const chartWrapperStyle: CSSProperties = {
 
 export interface SpotlightCardProps {
   indicator: Indicator;
+  /**
+   * Timestamp ISO 8601 do `generatedAt` do payload — usado para ancorar
+   * os labels absolutos do eixo X (`MAI/26`, `2026`, etc.).
+   *
+   * Quando ausente ou inválido, o componente cai automaticamente para
+   * labels relativos (`−12M / HOJE`) via `xAxisLabelsForIndicator` →
+   * `xAxisLabelsForPeriod`.
+   */
+  generatedAt?: string;
   /** Período inicial. Default: `'1A'`. */
   initialPeriod?: Period;
 }
 
 export function SpotlightCard({
   indicator,
+  generatedAt,
   initialPeriod = DEFAULT_PERIOD,
 }: SpotlightCardProps): JSX.Element {
   const [period, setPeriod] = useState<Period>(initialPeriod);
@@ -256,7 +271,11 @@ export function SpotlightCard({
           showGrid
           showAxis
           showXAxis
-          xLabels={xAxisLabelsForPeriod(period)}
+          xLabels={
+            generatedAt
+              ? xAxisLabelsForIndicator(indicator, period, generatedAt)
+              : xAxisLabelsForPeriod(period)
+          }
           formatY={(v) => fmtValue(v, indicator.fmtSpec)}
           ariaLabel={`Série de ${indicator.name}, período ${period}`}
         />
