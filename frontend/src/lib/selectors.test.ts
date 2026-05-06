@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { mockIndicator, mockIndicatorsFile } from '../test-utils/mock-data';
-import { selectQuadroIndicators, QUADRO_INDICATOR_IDS } from './selectors';
+import {
+  QUADRO_INDICATOR_IDS,
+  SPOTLIGHT_INDICATOR_ID,
+  selectQuadroIndicators,
+  selectSpotlight,
+} from './selectors';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -71,5 +76,30 @@ describe('QUADRO_INDICATOR_IDS', () => {
       'months_supply',
       'nahb',
     ]);
+  });
+});
+
+describe('selectSpotlight', () => {
+  it('retorna o indicador mortgage30 quando presente', () => {
+    const mortgage = mockIndicator({ id: 'mortgage30', name: 'Mortgage 30Y Fixa' });
+    const file = mockIndicatorsFile({
+      indicators: [mockIndicator({ id: 'cs_national' }), mortgage],
+    });
+    expect(selectSpotlight(file)).toBe(mortgage);
+  });
+
+  it('retorna null quando mortgage30 está ausente', () => {
+    const file = mockIndicatorsFile({
+      indicators: [mockIndicator({ id: 'cs_national' })],
+    });
+    expect(selectSpotlight(file)).toBeNull();
+  });
+
+  it('retorna null em file vazio', () => {
+    expect(selectSpotlight(mockIndicatorsFile())).toBeNull();
+  });
+
+  it('SPOTLIGHT_INDICATOR_ID é mortgage30', () => {
+    expect(SPOTLIGHT_INDICATOR_ID).toBe('mortgage30');
   });
 });
