@@ -3,6 +3,7 @@ import { mockIndicator, mockIndicatorsFile } from '../test-utils/mock-data';
 import {
   QUADRO_INDICATOR_IDS,
   SPOTLIGHT_INDICATOR_ID,
+  indicatorCountByGroup,
   selectQuadroIndicators,
   selectSpotlight,
 } from './selectors';
@@ -101,5 +102,49 @@ describe('selectSpotlight', () => {
 
   it('SPOTLIGHT_INDICATOR_ID é mortgage30', () => {
     expect(SPOTLIGHT_INDICATOR_ID).toBe('mortgage30');
+  });
+});
+
+describe('indicatorCountByGroup', () => {
+  it('conta indicators por grupo preservando todos os 5 grupos', () => {
+    const file = mockIndicatorsFile({
+      indicators: [
+        mockIndicator({ id: 'mortgage30', group: 'taxas' }),
+        mockIndicator({ id: 'mortgage15', group: 'taxas' }),
+        mockIndicator({ id: 'cs_national', group: 'precos' }),
+        mockIndicator({ id: 'months_supply', group: 'oferta' }),
+      ],
+    });
+    expect(indicatorCountByGroup(file)).toEqual({
+      taxas: 2,
+      precos: 1,
+      oferta: 1,
+      sentimento: 0,
+      macro: 0,
+    });
+  });
+
+  it('grupos vazios têm count zero (não omitidos)', () => {
+    const file = mockIndicatorsFile({ indicators: [] });
+    expect(indicatorCountByGroup(file)).toEqual({
+      taxas: 0,
+      precos: 0,
+      oferta: 0,
+      sentimento: 0,
+      macro: 0,
+    });
+  });
+
+  it('soma dos counts iguala file.indicators.length', () => {
+    const file = mockIndicatorsFile({
+      indicators: [
+        mockIndicator({ group: 'taxas' }),
+        mockIndicator({ group: 'taxas' }),
+        mockIndicator({ group: 'macro' }),
+      ],
+    });
+    const counts = indicatorCountByGroup(file);
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    expect(total).toBe(file.indicators.length);
   });
 });

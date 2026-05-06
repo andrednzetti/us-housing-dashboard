@@ -79,3 +79,18 @@ export function formatPtBrNumeric(date: Date): string {
   const year = date.getUTCFullYear();
   return `${day}.${month}.${year}`;
 }
+
+/**
+ * Formata uma `Date` em UTC como `DD.MMM` (compacto, sem ano).
+ * Usado nos eventos da Crônica da semana, onde o ano é redundante (mesmo
+ * ano corrente para todos os items da timeline).
+ *
+ * @example
+ *   formatPtBrShort(new Date('2026-05-05T00:00:00Z'))  // '05.MAI'
+ */
+export function formatPtBrShort(date: Date): string {
+  if (Number.isNaN(date.getTime())) return PLACEHOLDER;
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const month = PT_BR_MONTHS_ABBR[date.getUTCMonth()] ?? PLACEHOLDER;
+  return `${day}.${month}`;
+}

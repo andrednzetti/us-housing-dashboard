@@ -5,7 +5,8 @@
  * data e mantém componentes "presentation-only".
  */
 
-import type { Indicator, IndicatorsFile } from '../types';
+import type { Group, Indicator, IndicatorsFile } from '../types';
+import { GROUP_ORDER } from './groups';
 
 /**
  * IDs dos 4 indicadores que ocupam o Quadro Resumido na Variação D.
@@ -70,3 +71,29 @@ export const SPOTLIGHT_INDICATOR_ID = 'mortgage30';
 export function selectSpotlight(file: IndicatorsFile): Indicator | null {
   return file.indicators.find((i) => i.id === SPOTLIGHT_INDICATOR_ID) ?? null;
 }
+
+/**
+ * Conta indicadores por grupo. O resultado tem entrada para todos os 5
+ * grupos em `GROUP_ORDER`, mesmo quando a contagem é zero — facilita
+ * iteração ordenada nos consumers (ex.: ComposicaoCarteira).
+ *
+ * @example
+ *   indicatorCountByGroup(file)
+ *   // { taxas: 6, precos: 3, oferta: 7, sentimento: 3, macro: 4 }
+ */
+export function indicatorCountByGroup(file: IndicatorsFile): Record<Group, number> {
+  const counts: Record<Group, number> = {
+    taxas: 0,
+    precos: 0,
+    oferta: 0,
+    sentimento: 0,
+    macro: 0,
+  };
+  for (const ind of file.indicators) {
+    counts[ind.group] += 1;
+  }
+  return counts;
+}
+
+/** Ordem canônica de iteração — re-export por conveniência. */
+export { GROUP_ORDER };
