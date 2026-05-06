@@ -37,7 +37,7 @@ import { AreaChart } from '../charts';
 import { fmtDelta, fmtValue } from '../../lib/format';
 import { GROUPS } from '../../lib/groups';
 import { deltaColorFor, deltaCssVar } from '../../lib/sentiment';
-import { seriesStats, sliceSeriesByPeriod } from '../../lib/series';
+import { seriesStats, sliceSeriesByPeriod, xAxisLabelsForPeriod } from '../../lib/series';
 import { PeriodTabs } from './period-tabs';
 
 const PLACEHOLDER = '—';
@@ -255,6 +255,8 @@ export function SpotlightCard({
           height={CHART_HEIGHT}
           showGrid
           showAxis
+          showXAxis
+          xLabels={xAxisLabelsForPeriod(period)}
           formatY={(v) => fmtValue(v, indicator.fmtSpec)}
           ariaLabel={`Série de ${indicator.name}, período ${period}`}
         />

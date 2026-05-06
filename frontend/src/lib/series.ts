@@ -63,3 +63,36 @@ export function seriesStats(series: number[]): SeriesStats {
   const sum = series.reduce((acc, v) => acc + v, 0);
   return { min, max, avg: sum / series.length };
 }
+
+/**
+ * Labels relativos para o eixo X do AreaChart, dado um período. O último
+ * label é sempre `HOJE` — os anteriores são marcadores no passado em
+ * unidade adequada à granularidade do período.
+ *
+ * Convenção:
+ *   - 1M: granularidade semanal (`−4S … HOJE`)
+ *   - 3M: granularidade quadrimestral em semanas (`−12S … HOJE`)
+ *   - 6M: granularidade mensal (`−6M … HOJE`)
+ *   - 1A: granularidade trimestral em meses (`−12M … HOJE`)
+ *   - 5A: granularidade anual (`−5A … HOJE`)
+ *
+ * Os labels usam `−` (U+2212, minus tipográfico) para coerência com `fmtDelta`.
+ *
+ * @example
+ *   xAxisLabelsForPeriod('1A')
+ *   // ['−12M', '−9M', '−6M', '−3M', 'HOJE']
+ */
+export function xAxisLabelsForPeriod(period: Period): string[] {
+  switch (period) {
+    case '1M':
+      return ['−4S', '−3S', '−2S', '−1S', 'HOJE'];
+    case '3M':
+      return ['−12S', '−8S', '−4S', 'HOJE'];
+    case '6M':
+      return ['−6M', '−4M', '−2M', 'HOJE'];
+    case '1A':
+      return ['−12M', '−9M', '−6M', '−3M', 'HOJE'];
+    case '5A':
+      return ['−5A', '−4A', '−3A', '−2A', '−1A', 'HOJE'];
+  }
+}

@@ -96,4 +96,50 @@ describe('AreaChart', () => {
     );
     expect(html).toMatchSnapshot();
   });
+
+  // ── X axis (housekeeping pré-Fase 5) ───────────────────────────────
+
+  it('renderiza X axis com tick marks + labels quando showXAxis=true', () => {
+    const html = renderToStaticMarkup(
+      <AreaChart
+        series={[1, 2, 3, 4, 5]}
+        showXAxis
+        xLabels={['−4S', '−3S', '−2S', '−1S', 'HOJE']}
+      />,
+    );
+    expect(html).toMatchSnapshot();
+  });
+
+  it('combina grid + Y axis + X axis (cenário Spotlight completo)', () => {
+    const html = renderToStaticMarkup(
+      <AreaChart
+        series={[6.1, 6.2, 6.3, 6.4, 6.5]}
+        width={720}
+        height={240}
+        accent="var(--group-taxas)"
+        showGrid
+        showAxis
+        showXAxis
+        xLabels={['−12M', '−9M', '−6M', '−3M', 'HOJE']}
+        formatY={(v) => `${v.toFixed(2)}%`}
+      />,
+    );
+    expect(html).toMatchSnapshot();
+  });
+
+  it('X axis silencia quando xLabels.length < 2 (precisa de pelo menos 2 ticks)', () => {
+    const html = renderToStaticMarkup(
+      <AreaChart series={[1, 2, 3]} showXAxis xLabels={['HOJE']} />,
+    );
+    // Não tem linha de eixo X nem ticks — geometria igual ao default
+    expect(html).not.toContain('xtick-');
+    expect(html).not.toContain('xlabel-');
+  });
+
+  it('xLabels vazio (default) com showXAxis=true também silencia', () => {
+    const html = renderToStaticMarkup(
+      <AreaChart series={[1, 2, 3]} showXAxis />,
+    );
+    expect(html).not.toContain('xtick-');
+  });
 });
