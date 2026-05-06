@@ -1,29 +1,24 @@
 /**
- * App root — Variação D shell + sections de conteúdo.
- *
- * Fase 4 PR 4a: shell editorial + hook.
- * Fase 4 PR 4b: QuadroResumido.
- * Fase 4 PR 4c-1: Spotlight card principal isolado.
- * Fase 4 PR 4c-2: Ledger plano + interação Ledger ↔ Spotlight via lift do
- *                  estado `selected` neste componente.
- * Fase 4 PR 4c-3: Spotlight passa a ser wrapper grid 2-col (card + aside
- *                  com Crônica de eventos + Composição da carteira).
- * Restante (Anexos 4d) em PR futuro.
+ * App root — Variação D completa.
  *
  * Histórico:
  *   - Fase 2: hello world tokenizado provando tokens + fonts + JSON fetch
  *   - Fase 3 PR 3a: tipo `IndicatorsFile` e helpers do domain layer
  *   - Fase 3 PR 3b: 5 chart primitives SVG (demo descartável removida)
- *   - Fase 4 PR 4a: shell + hook
+ *   - Fase 4 PR 4a: shell editorial + hook
  *   - Fase 4 PR 4b: QuadroResumido
  *   - Fase 4 PR 4c-1: Spotlight card principal
- *   - Fase 4 PR 4c-2: Ledger + estado `selected`
- *   - Fase 4 PR 4c-3: Spotlight aside (Crônica + Composição) (este arquivo)
+ *   - Fase 4 PR 4c-2: Ledger + estado `selected` lift
+ *   - Fase 4 PR 4c-3: Spotlight aside (Crônica + Composição)
+ *   - Fase 4 PR 4d: Anexos (Regiões + Metros) — encerra a Fase 4 (este arquivo)
+ *
+ * Próxima fase: cutover legacy → React (Fase 5 do plano-mestre).
  */
 
 import { useState } from 'react';
 import type { CSSProperties, JSX } from 'react';
 import type { Indicator } from './types';
+import { AnexosSection } from './components/anexos';
 import { Ledger } from './components/ledger';
 import { QuadroResumido } from './components/quadro';
 import { AppLayout, Footer, Header } from './components/shell';
@@ -47,17 +42,6 @@ const errorBoxStyle: CSSProperties = {
   padding: 'var(--space-5)',
   background: 'var(--bg-panel)',
   border: '0.5px solid var(--neg)',
-};
-
-const placeholderStyle: CSSProperties = {
-  marginTop: 'var(--space-12)',
-  paddingTop: 'var(--space-6)',
-  borderTop: 'var(--border-soft)',
-  fontFamily: 'var(--font-mono)',
-  fontSize: 'var(--fs-label-l)',
-  color: 'var(--ink-mute)',
-  textTransform: 'uppercase',
-  letterSpacing: 'var(--ls-label)',
 };
 
 const sectionGapStyle: CSSProperties = { marginTop: 'var(--space-8)' };
@@ -103,8 +87,8 @@ export default function App(): JSX.Element {
               onSelect={setSelected}
             />
           </div>
-          <div style={placeholderStyle}>
-            Anexos (regiões + metros) — próximo PR (4d)
+          <div style={sectionGapStyle}>
+            <AnexosSection regions={data.regions} metros={data.metros} />
           </div>
         </>
       )}

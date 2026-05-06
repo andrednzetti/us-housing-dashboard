@@ -134,3 +134,17 @@ export function fmtDelta(value: number, unit: string): string {
   });
   return `${sign}${abs}${unit}`;
 }
+
+/**
+ * Formata um preço em USD usando sufixo `k` (milhares). Estilo invoice/
+ * editorial — usado nos Anexos de Regiões e Top Metros para exibir os
+ * preços medianos sem floods de dígitos.
+ *
+ * @example
+ *   fmtPriceK(478200)  // '$478k'
+ *   fmtPriceK(99500)   // '$100k'
+ *   fmtPriceK(0)       // '$0k'
+ */
+export function fmtPriceK(value: number): string {
+  return `$${Math.round(value / 1000).toString()}k`;
+}
