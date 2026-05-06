@@ -54,8 +54,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      include: ['src/lib/**/*.ts'],
-      exclude: ['src/lib/**/*.test.ts'],
+      include: ['src/lib/**/*.ts', 'src/components/charts/**/*.tsx'],
+      exclude: [
+        'src/lib/**/*.test.ts',
+        'src/components/charts/**/*.test.tsx',
+        'src/components/charts/index.ts',
+      ],
     },
   },
 });

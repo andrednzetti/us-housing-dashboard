@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Sparkline > inclui período no aria-label quando fornecido 1`] = `"<svg role="img" aria-label="Sparkline (período 6M)" viewBox="0 0 200 40" width="200" height="40" preserveAspectRatio="xMidYMid meet" style="display:block;overflow:visible"><path d="M 0 40 L 100 20 L 200 0" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></path></svg>"`;
+
+exports[`Sparkline > lida com ponto único desenhando linha plana 1`] = `"<svg role="img" aria-label="Sparkline" viewBox="0 0 200 40" width="200" height="40" preserveAspectRatio="xMidYMid meet" style="display:block;overflow:visible"><line x1="0" y1="20" x2="200" y2="20" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round"></line></svg>"`;
+
+exports[`Sparkline > lida com série plana (todos valores iguais) 1`] = `"<svg role="img" aria-label="Sparkline" viewBox="0 0 200 40" width="200" height="40" preserveAspectRatio="xMidYMid meet" style="display:block;overflow:visible"><path d="M 0 40 L 66.66666666666667 40 L 133.33333333333334 40 L 200 40" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></path></svg>"`;
+
+exports[`Sparkline > lida com série vazia desenhando linha plana 1`] = `"<svg role="img" aria-label="Sparkline" viewBox="0 0 200 40" width="200" height="40" preserveAspectRatio="xMidYMid meet" style="display:block;overflow:visible"><line x1="0" y1="20" x2="200" y2="20" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round"></line></svg>"`;
+
+exports[`Sparkline > renderiza série típica com defaults 1`] = `"<svg role="img" aria-label="Sparkline" viewBox="0 0 200 40" width="200" height="40" preserveAspectRatio="xMidYMid meet" style="display:block;overflow:visible"><path d="M 0 40 L 50 30 L 100 20 L 150 10 L 200 0" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></path></svg>"`;
+
+exports[`Sparkline > respeita ariaLabel customizado quando fornecido 1`] = `"<svg role="img" aria-label="Mortgage 30Y, últimos 6 meses" viewBox="0 0 200 40" width="200" height="40" preserveAspectRatio="xMidYMid meet" style="display:block;overflow:visible"><path d="M 0 40 L 100 20 L 200 0" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"></path></svg>"`;
+
+exports[`Sparkline > respeita dimensões e accent customizados 1`] = `"<svg role="img" aria-label="Sparkline" viewBox="0 0 400 80" width="400" height="80" preserveAspectRatio="xMidYMid meet" style="display:block;overflow:visible"><path d="M 0 80 L 100 26.66666666666667 L 200 53.333333333333336 L 300 0 L 400 40" fill="none" stroke="var(--group-taxas)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"></path></svg>"`;
