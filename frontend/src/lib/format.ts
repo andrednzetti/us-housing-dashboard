@@ -17,17 +17,24 @@ const PCT_DEFAULT_DECIMALS = 2;
 const NUM_DEFAULT_DECIMALS = 1;
 
 /**
- * Formata um valor como percentual com sinal explícito.
+ * Formata um valor absoluto como percentual em locale pt-BR (vírgula
+ * decimal). **Sem sinal** — `fmtPct` é para o valor presente do indicador
+ * (ex.: taxa atual da mortgage). Para variações com sinal explícito, use
+ * `fmtDelta`.
  *
  * @example
- *   fmtPct(0.18)     // '+0.18%'
- *   fmtPct(-0.18)    // '-0.18%'
- *   fmtPct(2.4, 1)   // '+2.4%'
- *   fmtPct(0)        // '+0.00%'
+ *   fmtPct(0.18)     // '0,18%'
+ *   fmtPct(-0.18)    // '-0,18%'    (sinal natural da locale)
+ *   fmtPct(2.4, 1)   // '2,4%'
+ *   fmtPct(0)        // '0,00%'
+ *   fmtPct(6.3)      // '6,30%'
  */
 export function fmtPct(value: number, decimals: number = PCT_DEFAULT_DECIMALS): string {
-  const sign = value >= 0 ? '+' : '';
-  return `${sign}${value.toFixed(decimals)}%`;
+  const formatted = value.toLocaleString('pt-BR', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+  return `${formatted}%`;
 }
 
 /**
@@ -103,23 +110,27 @@ export function fmtValue(value: number, spec: FmtSpec): string {
  * Formata o delta de um indicador inline com unidade — espelha o `DDelta`
  * do handoff (variation-d.jsx linhas 85-95):
  *
- *   - Sinal: `+` quando positivo, `±` quando zero, `-` natural via toFixed
- *   - Decimais: 2 quando unidade é `'pp'`, senão 1
- *   - Sem espaço entre número e unidade (ex.: `+0.18pp`, `-0.6m`, `±0.0pts`)
+ *   - Sinal: `+` quando positivo, `−` (U+2212) quando negativo, `±` quando zero.
+ *     O caractere `−` (minus matemático, U+2212) é tipograficamente correto e
+ *     bate com o tom editorial do produto. ASCII `-` (hífen) NÃO é usado.
+ *   - Locale pt-BR (vírgula decimal).
+ *   - Decimais: mínimo 1, máximo 2 — flexível com a precisão real do número.
+ *   - Sem espaço entre número e unidade (ex.: `+0,18pp`, `−0,6m`, `±0,0pts`).
  *
- * Usado nos cards do Quadro Resumido e em qualquer outro consumer que
- * precise da forma editorial inline. Para a cor visual, combine com
- * `deltaColorFor(indicator)` de `sentiment.ts`.
+ * Para a cor visual sentiment-aware, combine com `deltaColorFor(indicator)`
+ * de `sentiment.ts`.
  *
  * @example
- *   fmtDelta(0.18, 'pp')     // '+0.18pp'
- *   fmtDelta(-0.6,  'm')     // '-0.6m'
- *   fmtDelta(0,     'pts')   // '±0.0pts'
- *   fmtDelta(0.66,  '% a.a.') // '+0.7% a.a.'
+ *   fmtDelta(0.18, 'pp')     // '+0,18pp'
+ *   fmtDelta(-0.6,  'm')     // '−0,6m'
+ *   fmtDelta(0,     'pts')   // '±0,0pts'
+ *   fmtDelta(0.66,  '% a.a.') // '+0,66% a.a.'
  */
 export function fmtDelta(value: number, unit: string): string {
-  const decimals = unit === 'pp' ? 2 : 1;
-  if (value === 0) return `±${(0).toFixed(decimals)}${unit}`;
-  const sign = value > 0 ? '+' : '';
-  return `${sign}${value.toFixed(decimals)}${unit}`;
+  const sign = value > 0 ? '+' : value < 0 ? '−' : '±';
+  const abs = Math.abs(value).toLocaleString('pt-BR', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 2,
+  });
+  return `${sign}${abs}${unit}`;
 }

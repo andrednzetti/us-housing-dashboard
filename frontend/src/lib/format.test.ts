@@ -3,28 +3,32 @@ import { describe, expect, it } from 'vitest';
 import { fmtDelta, fmtK, fmtNum, fmtPct, fmtUSD, fmtValue } from './format';
 
 describe('fmtPct', () => {
-  it('formata positivo com sinal explícito (+)', () => {
-    expect(fmtPct(0.18)).toBe('+0.18%');
+  it('formata valor positivo SEM sinal e em pt-BR (vírgula)', () => {
+    expect(fmtPct(0.18)).toBe('0,18%');
   });
 
-  it('formata negativo com sinal natural (-)', () => {
-    expect(fmtPct(-0.18)).toBe('-0.18%');
+  it('formata negativo com sinal natural da locale', () => {
+    expect(fmtPct(-0.18)).toBe('-0,18%');
   });
 
   it('respeita decimals customizado', () => {
-    expect(fmtPct(2.4, 1)).toBe('+2.4%');
+    expect(fmtPct(2.4, 1)).toBe('2,4%');
   });
 
-  it('zero é tratado como não-negativo (+)', () => {
-    expect(fmtPct(0)).toBe('+0.00%');
+  it('zero é exibido sem sinal', () => {
+    expect(fmtPct(0)).toBe('0,00%');
   });
 
   it('decimals padrão é 2', () => {
-    expect(fmtPct(3.14159)).toBe('+3.14%');
+    expect(fmtPct(3.14159)).toBe('3,14%');
   });
 
-  it('decimals=0 produz inteiro', () => {
-    expect(fmtPct(5, 0)).toBe('+5%');
+  it('decimals=0 produz inteiro sem casa decimal', () => {
+    expect(fmtPct(5, 0)).toBe('5%');
+  });
+
+  it('valor típico Mortgage30 (6.3 com 2 decimais)', () => {
+    expect(fmtPct(6.3)).toBe('6,30%');
   });
 });
 
@@ -100,15 +104,15 @@ describe('fmtK', () => {
 
 describe('fmtValue dispatcher', () => {
   it('despacha para fmtPct quando type=pct', () => {
-    expect(fmtValue(6.42, { type: 'pct', decimals: 2 })).toBe('+6.42%');
+    expect(fmtValue(6.42, { type: 'pct', decimals: 2 })).toBe('6,42%');
   });
 
   it('respeita decimals do spec pct', () => {
-    expect(fmtValue(2.4, { type: 'pct', decimals: 1 })).toBe('+2.4%');
+    expect(fmtValue(2.4, { type: 'pct', decimals: 1 })).toBe('2,4%');
   });
 
   it('pct sem decimals usa default 2', () => {
-    expect(fmtValue(0.18, { type: 'pct' })).toBe('+0.18%');
+    expect(fmtValue(0.18, { type: 'pct' })).toBe('0,18%');
   });
 
   it('despacha para fmtUSD quando type=usd', () => {
@@ -137,36 +141,44 @@ describe('fmtValue dispatcher', () => {
 });
 
 describe('fmtDelta', () => {
-  it('formata delta positivo com sinal +', () => {
-    expect(fmtDelta(0.18, 'pp')).toBe('+0.18pp');
+  it('formata delta positivo com sinal + e vírgula pt-BR', () => {
+    expect(fmtDelta(0.18, 'pp')).toBe('+0,18pp');
   });
 
-  it('formata delta negativo com sinal natural -', () => {
-    expect(fmtDelta(-0.6, 'm')).toBe('-0.6m');
+  it('formata delta negativo com sinal − (U+2212), não hífen ASCII', () => {
+    expect(fmtDelta(-0.6, 'm')).toBe('−0,6m');
   });
 
-  it('formata zero com símbolo ± e decimais corretos', () => {
-    expect(fmtDelta(0, 'pts')).toBe('±0.0pts');
+  it('formata zero com símbolo ± e 1 decimal mínimo', () => {
+    expect(fmtDelta(0, 'pts')).toBe('±0,0pts');
   });
 
-  it('usa 2 decimais quando unidade é pp', () => {
-    expect(fmtDelta(0.184, 'pp')).toBe('+0.18pp');
+  it('exibe até 2 decimais quando o valor precisa', () => {
+    expect(fmtDelta(0.184, 'pp')).toBe('+0,18pp');
   });
 
-  it('usa 1 decimal para unidades não-pp', () => {
-    expect(fmtDelta(3.46, '%')).toBe('+3.5%');
+  it('exibe 2 decimais para Mortgage30-like (0.07 pp)', () => {
+    expect(fmtDelta(0.07, 'pp')).toBe('+0,07pp');
   });
 
-  it('lida com unidade composta (% a.a.)', () => {
-    expect(fmtDelta(0.66, '% a.a.')).toBe('+0.7% a.a.');
+  it('exibe até 2 decimais para % (3.46% → +3,46%)', () => {
+    expect(fmtDelta(3.46, '%')).toBe('+3,46%');
   });
 
-  it('lida com idx/pt e outras unidades curtas', () => {
-    expect(fmtDelta(2, 'idx')).toBe('+2.0idx');
-    expect(fmtDelta(-1, 'pt')).toBe('-1.0pt');
+  it('lida com unidade composta (% a.a.) preservando 2 decimais', () => {
+    expect(fmtDelta(0.66, '% a.a.')).toBe('+0,66% a.a.');
+  });
+
+  it('lida com idx/pt e outras unidades curtas (min 1 decimal)', () => {
+    expect(fmtDelta(2, 'idx')).toBe('+2,0idx');
+    expect(fmtDelta(-1, 'pt')).toBe('−1,0pt');
   });
 
   it('zero negativo (-0) também é tratado como zero (±)', () => {
-    expect(fmtDelta(-0, 'pp')).toBe('±0.00pp');
+    expect(fmtDelta(-0, 'pp')).toBe('±0,0pp');
+  });
+
+  it('Months Supply-like (-0.6 m) usa minus tipográfico', () => {
+    expect(fmtDelta(-0.6, 'm')).toBe('−0,6m');
   });
 });
