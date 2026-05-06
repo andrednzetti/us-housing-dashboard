@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mercado Imobiliário EUA — Redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #1a1a18; font-family: 'Inter', -apple-system, sans-serif; }
+  /* Map "GT Sectra" → Source Serif 4 (free Google Font with similar editorial feel) */
+  @font-face { font-family: 'GT Sectra'; src: local('Source Serif 4'); }
+  @font-face { font-family: 'Söhne'; src: local('Inter'); }
+  @font-face { font-family: 'Söhne Mono'; src: local('JetBrains Mono'); }
+  button:focus { outline: none; }
+  ::selection { background: #d4a44a; color: #0d0e0f; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="data.jsx"></script>
+<script type="text/babel" src="charts.jsx"></script>
+<script type="text/babel" src="variation-a.jsx"></script>
+<script type="text/babel" src="variation-b.jsx"></script>
+<script type="text/babel" src="variation-c.jsx"></script>
+<script type="text/babel" src="variation-d.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+  const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "density": "dense"
+  }/*EDITMODE-END*/;
+
+  function App() {
+    const [t, setTweak] = window.useTweaks(TWEAK_DEFAULTS);
+    const dense = t.density === 'dense';
+
+    return (
+      <React.Fragment>
+        <window.DesignCanvas background="#1a1a18" defaultZoom={0.55}>
+          <window.DCSection id="dashboard" title="Mercado Imobiliário EUA · Redesign" subtitle="Três direções modernas · todas interativas · clique nos indicadores para drill-down">
+            <window.DCArtboard id="a" label="A · Editorial Minimalista" width={1280} height={1900}>
+              <window.AVariation dense={dense} />
+            </window.DCArtboard>
+            <window.DCArtboard id="b" label="B · Trading Terminal" width={1280} height={1900}>
+              <window.BVariation dense={dense} />
+            </window.DCArtboard>
+            <window.DCArtboard id="c" label="C · Macro Premium" width={1280} height={2100}>
+              <window.CVariation dense={dense} />
+            </window.DCArtboard>
+            <window.DCArtboard id="d" label="D · Documento Corporativo" width={1280} height={2200}>
+              <window.DVariation dense={dense} />
+            </window.DCArtboard>
+          </window.DCSection>
+        </window.DesignCanvas>
+
+        {(
+          <window.TweaksPanel title="Tweaks">
+            <window.TweakSection title="Densidade da informação">
+              <window.TweakRadio
+                label="Modo de densidade"
+                value={t.density}
+                onChange={(v) => setTweak('density', v)}
+                options={[
+                  { value: 'comfortable', label: 'Confortável' },
+                  { value: 'dense', label: 'Denso' },
+                ]}
+              />
+              <div style={{ fontSize: 11, color: '#888', lineHeight: 1.4, marginTop: 6 }}>
+                Confortável: padding generoso, 3 colunas, sparklines maiores.<br />
+                Denso: padding reduzido, 4 colunas, mais indicadores visíveis.
+              </div>
+            </window.TweakSection>
+          </window.TweaksPanel>
+        )}
+      </React.Fragment>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
