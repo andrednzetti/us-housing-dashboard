@@ -97,3 +97,23 @@ export function indicatorCountByGroup(file: IndicatorsFile): Record<Group, numbe
 
 /** Ordem canônica de iteração — re-export por conveniência. */
 export { GROUP_ORDER };
+
+/** Default de cidades exibidas no Anexo II (Top Metros · Sun Belt). */
+export const DEFAULT_TOP_METROS = 8;
+
+/**
+ * Retorna os top N metros, **preservando a ordem do payload**. O backend
+ * Python entrega os metros já em ordem editorial (Sun Belt em destaque
+ * primeiro, hot=true antes), então não há necessidade — nem desejo — de
+ * sortear por preço aqui.
+ *
+ * @example
+ *   selectTopMetros(file)            // 8 primeiros (default)
+ *   selectTopMetros(file, 5)         // 5 primeiros
+ */
+export function selectTopMetros(
+  file: IndicatorsFile,
+  topN: number = DEFAULT_TOP_METROS,
+): IndicatorsFile['metros'] {
+  return file.metros.slice(0, topN);
+}

@@ -1,12 +1,15 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { mockIndicator, mockIndicatorsFile } from '../test-utils/mock-data';
 import {
+  DEFAULT_TOP_METROS,
   QUADRO_INDICATOR_IDS,
   SPOTLIGHT_INDICATOR_ID,
   indicatorCountByGroup,
   selectQuadroIndicators,
   selectSpotlight,
+  selectTopMetros,
 } from './selectors';
+import type { Metro } from '../types';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -146,5 +149,65 @@ describe('indicatorCountByGroup', () => {
     const counts = indicatorCountByGroup(file);
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
     expect(total).toBe(file.indicators.length);
+  });
+});
+
+const mockMetro = (overrides: Partial<Metro> = {}): Metro => ({
+  name: 'Mock Metro, ST',
+  price: 400000,
+  yoy: 5.0,
+  dom: 30,
+  hot: false,
+  ...overrides,
+});
+
+describe('selectTopMetros', () => {
+  it('retorna primeiros 8 metros por default (preservando ordem)', () => {
+    const metros: Metro[] = Array.from({ length: 12 }, (_, i) =>
+      mockMetro({ name: `Metro-${i}` }),
+    );
+    const file = mockIndicatorsFile({ metros });
+    expect(selectTopMetros(file)).toHaveLength(8);
+    expect(selectTopMetros(file).map((m) => m.name)).toEqual([
+      'Metro-0', 'Metro-1', 'Metro-2', 'Metro-3',
+      'Metro-4', 'Metro-5', 'Metro-6', 'Metro-7',
+    ]);
+  });
+
+  it('respeita topN customizado', () => {
+    const metros: Metro[] = Array.from({ length: 8 }, (_, i) =>
+      mockMetro({ name: `Metro-${i}` }),
+    );
+    const file = mockIndicatorsFile({ metros });
+    expect(selectTopMetros(file, 3)).toHaveLength(3);
+  });
+
+  it('retorna todos quando topN excede metros.length', () => {
+    const metros: Metro[] = [mockMetro({ name: 'Solo' })];
+    const file = mockIndicatorsFile({ metros });
+    expect(selectTopMetros(file, 10)).toEqual(metros);
+  });
+
+  it('preserva ordem do payload (NÃO sorteia por preço)', () => {
+    // Ordem editorial Sun Belt: Tampa primeiro mesmo com preço menor
+    const metros: Metro[] = [
+      mockMetro({ name: 'Tampa, FL', price: 392000 }),
+      mockMetro({ name: 'Phoenix, AZ', price: 458200 }),
+      mockMetro({ name: 'Charlotte, NC', price: 384500 }),
+    ];
+    const file = mockIndicatorsFile({ metros });
+    expect(selectTopMetros(file).map((m) => m.name)).toEqual([
+      'Tampa, FL',     // mesmo com preço inferior, vem 1º (ordem do payload)
+      'Phoenix, AZ',
+      'Charlotte, NC',
+    ]);
+  });
+
+  it('DEFAULT_TOP_METROS = 8', () => {
+    expect(DEFAULT_TOP_METROS).toBe(8);
+  });
+
+  it('retorna [] em file sem metros', () => {
+    expect(selectTopMetros(mockIndicatorsFile())).toEqual([]);
   });
 });

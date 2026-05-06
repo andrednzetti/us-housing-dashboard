@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { fmtDelta, fmtK, fmtNum, fmtPct, fmtUSD, fmtValue } from './format';
+import { fmtDelta, fmtK, fmtNum, fmtPct, fmtPriceK, fmtUSD, fmtValue } from './format';
 
 describe('fmtPct', () => {
   it('formata valor positivo SEM sinal e em pt-BR (vírgula)', () => {
@@ -180,5 +180,28 @@ describe('fmtDelta', () => {
 
   it('Months Supply-like (-0.6 m) usa minus tipográfico', () => {
     expect(fmtDelta(-0.6, 'm')).toBe('−0,6m');
+  });
+});
+
+describe('fmtPriceK', () => {
+  it('formata preço típico de region/metro', () => {
+    expect(fmtPriceK(478200)).toBe('$478k');
+  });
+
+  it('arredonda para múltiplo mais próximo de 1000', () => {
+    expect(fmtPriceK(99500)).toBe('$100k');
+    expect(fmtPriceK(99499)).toBe('$99k');
+  });
+
+  it('lida com zero', () => {
+    expect(fmtPriceK(0)).toBe('$0k');
+  });
+
+  it('formata valor menor que 1000', () => {
+    expect(fmtPriceK(800)).toBe('$1k');
+  });
+
+  it('milhões', () => {
+    expect(fmtPriceK(1500000)).toBe('$1500k');
   });
 });
