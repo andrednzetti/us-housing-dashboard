@@ -1,7 +1,7 @@
 # Post-mortem: Migração v1 → v2 (vanilla → React)
 
-> Status: rascunho — datado de 2026-05-06, fechamento da Fase 4 e início da
-> Fase 5. Será atualizado no PR 5c quando a tag `v2.0.0` for aplicada.
+> Status: final — datado de 2026-05-06, encerramento da Fase 5 e tag
+> `v2.0.0`. Métricas e cronograma travados no merge do PR #16 (cutover).
 
 ## Contexto
 
@@ -168,13 +168,12 @@ com sessão concentrada de implementação assistida. Marcos principais:
 
 ## Próximos passos (pós-v2.0.0)
 
-- **PR 5b**: parar a geração de `data/indicators.legacy.json` em
-  `merge_data.py`. Pipeline change cirúrgica.
-- **PR 5c**: workflow novo para deploy do `frontend/dist/` em GitHub Pages,
-  ajuste em `Settings → Pages`, tag `v2.0.0`, bump de
-  `frontend/package.json` (sair de `0.0.0` para `2.0.0`). Encerramento da
-  Fase 5.
-- **Fora da Fase 5** (issues separados): copy-editing dos `indicator.name`,
-  remoção do `HBarSimple` se confirmado não-uso, dark mode (tokens já
-  preparados em `tokens.css`), substituição dos hardcoded `static_data/`
-  por scrape NAR Regional Reports.
+- **Issues separados** (fora da migração): copy-editing dos `indicator.name`
+  com mistura PT-BR/EN, remoção do `HBarSimple` se confirmado não-uso, dark
+  mode (tokens já preparados em `tokens.css`), substituição dos hardcoded
+  `static_data/` por scrape NAR Regional Reports.
+- **Manutenção semanal**: workflow `update-data.yml` continua rodando às
+  terças 14:00 UTC; workflow novo `deploy-pages.yml` redeploya o frontend
+  automaticamente quando `data/` ou `frontend/` mudam em `main`.
+- **Monitoramento informal**: validação visual no início de cada semana após
+  o cron rodar — confirma que a URL pública mostra dados frescos.

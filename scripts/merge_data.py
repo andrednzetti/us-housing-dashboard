@@ -86,35 +86,12 @@ TOLERANCE_DAYS = {
     "30d":  8,
 }
 
-# Schema v1: keys que `app.js` referencia. Raw FRED IDs / scraped IDs.
-LEGACY_V1_KEYS = [
-    "MORTGAGE30US", "MORTGAGE15US", "MBA_PURCH", "MBA_REFI",
-    "HOUST", "PERMIT", "COMPUTSA", "MSACSR",
-    "HSN1F", "EXHOSLUSM495S", "PHSI", "ACTLISCOUUS",
-    "CSUSHPISA", "USSTHPI", "MSPUS",
-    "USHMI", "WPU081", "RMI",
-]
-
-# Legacy aliases (PR 1b bugfix): app.js tem hardcoded SERIES_ORDER para
-# USHMI e PHSI (vide JS legacy) — mas no merged dict atual essas keys
-# vêm com nomes diferentes (NAHB_HMI scraped + PENLISCOUUS FRED). O alias
-# permite que o legacy file continue tendo `series.USHMI` e `series.PHSI`,
-# preservando a renderização em produção sem tocar em app.js (refator de
-# frontend é Fase 2+).
-LEGACY_KEY_ALIASES = {
-    "USHMI": "NAHB_HMI",
-    "PHSI":  "PENLISCOUUS",
-}
-
-# Schema v1: agrupamento que `app.js` espera (separado do v2 — não muda).
-V1_GROUP_ORDER = ["rates", "supply", "demand", "prices", "sentiment"]
-V1_GROUP_LABELS = {
-    "rates":     "Rates & Financing",
-    "supply":    "Supply",
-    "demand":    "Demand",
-    "prices":    "Prices",
-    "sentiment": "Sentiment & Costs",
-}
+# Geração do payload v1 (`indicators.legacy.json`) foi removida no
+# v2.0.0 (PR #16, Fase 5). O frontend React consome apenas `indicators.json`
+# (schema v2). O snapshot histórico do legacy continua disponível na tag
+# `v1-vanilla-final`, e o código vanilla está preservado em `legacy/`.
+# As constantes LEGACY_V1_KEYS / LEGACY_KEY_ALIASES / V1_GROUP_ORDER /
+# V1_GROUP_LABELS foram removidas junto com `build_legacy_v1`.
 
 
 # ---------------------------------------------------------------------------
@@ -437,67 +414,6 @@ def validate_v2_against_schema(payload: dict, schema_path: str) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Construção do payload legacy (v1) — compat com app.js
-# ---------------------------------------------------------------------------
-
-def build_legacy_v1(merged_raw: dict, generated_at: str) -> dict:
-    """
-    Constrói o payload v1 a partir do merge raw.
-
-    Filtra para os 18 IDs que `app.js` referencia. Mantém a estrutura
-    `{last_updated, total_series, groups, series}` exatamente como o
-    `merge_data.py` original produzia.
-
-    Aplica aliases definidos em `LEGACY_KEY_ALIASES` para preservar chaves
-    legadas que não existem mais no merge raw (ex.: USHMI -> NAHB_HMI,
-    PHSI -> PENLISCOUUS), permitindo que app.js continue renderizando
-    sem mudança de código.
-    """
-    series: dict = {}
-    for legacy_key in LEGACY_V1_KEYS:
-        if legacy_key in merged_raw:
-            series[legacy_key] = merged_raw[legacy_key]
-            continue
-        # Tenta alias se o legacy_key não vier nativo do merge atual.
-        alias_target = LEGACY_KEY_ALIASES.get(legacy_key)
-        if alias_target and alias_target in merged_raw:
-            # Copia entrada do alias mas sobrescreve `id` para o nome legado
-            # (preserva contrato: app.js itera SERIES_ORDER e espera
-            # data.series[KEY].id === KEY em alguns lugares).
-            entry = dict(merged_raw[alias_target])
-            entry["id"] = legacy_key
-            series[legacy_key] = entry
-
-    group_counts: dict[str, int] = {}
-    for entry in series.values():
-        g = entry.get("group", "unknown")
-        group_counts[g] = group_counts.get(g, 0) + 1
-
-    return {
-        "last_updated": generated_at,
-        "total_series": len(series),
-        "groups": {
-            g: {"label": V1_GROUP_LABELS.get(g, g), "count": group_counts[g]}
-            for g in V1_GROUP_ORDER
-            if g in group_counts
-        },
-        "series": series,
-    }
-
-
-# ---------------------------------------------------------------------------
-# Tamanho do output — truncagem defensiva
-# ---------------------------------------------------------------------------
-
-def truncate_observations(data: dict, start_date: str) -> dict:
-    """Remove observations before start_date para reduzir tamanho."""
-    for key in data:
-        obs = data[key].get("observations", [])
-        data[key]["observations"] = [o for o in obs if o["date"] >= start_date]
-    return data
-
-
-# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -508,7 +424,6 @@ def main() -> None:
     events_path = os.path.join(base_dir, "data", "events.json")
     schema_path = os.path.join(base_dir, "data", "schema.json")
     output_v2_path = os.path.join(base_dir, "data", "indicators.json")
-    output_legacy_path = os.path.join(base_dir, "data", "indicators.legacy.json")
 
     print("Loading FRED data...")
     fred_data = load_json(fred_path)
@@ -533,13 +448,11 @@ def main() -> None:
 
     # ─── last-known-good fallback ────────────────────────────────────────
     # Antes do strict 23-or-fail, tenta preencher raw_keys ausentes a partir
-    # do indicators.json anterior (commitado pelo workflow anterior). Tenta
-    # primeiro o legacy v1 (sempre tem datas) e, em segundo lugar, o
-    # indicators.json (pode ser v1 em transição ou v2 sem datas).
+    # do indicators.json anterior (commitado pelo workflow anterior). Em
+    # versões anteriores tentávamos primeiro o legacy v1 — esse caminho foi
+    # removido junto com a geração do legacy.json no v2.0.0.
     print("\nApplying last-known-good fallback for missing indicators...")
-    previous = load_previous_indicators(output_legacy_path)
-    if not previous:
-        previous = load_previous_indicators(output_v2_path)
+    previous = load_previous_indicators(output_v2_path)
     fallbacks = apply_fallback(merged, previous)
 
     # Log honesto: distingue 3 casos (todos OK / fallback recuperou / sem cobertura).
@@ -595,31 +508,17 @@ def main() -> None:
     v2_size = write_json(output_v2_path, v2_payload)
     print(f"\nWritten {output_v2_path} ({v2_size / 1024:.1f} KB)")
 
-    # ─── legacy v1 ───────────────────────────────────────────────────────
-    print("\nBuilding legacy v1 payload (app.js compat)...")
-    legacy_payload = build_legacy_v1(merged, now_utc)
-    print(f"  legacy series: {legacy_payload['total_series']}")
-
-    legacy_size = write_json(output_legacy_path, legacy_payload)
-    print(f"Written {output_legacy_path} ({legacy_size / 1024:.1f} KB)")
-
-    # ─── tamanho defensivo ───────────────────────────────────────────────
-    total_size = v2_size + legacy_size
-    if total_size > MAX_FILE_SIZE_BYTES:
+    if v2_size > MAX_FILE_SIZE_BYTES:
         print(
-            f"\n[WARNING] Combined output exceeds "
+            f"\n[WARNING] indicators.json exceeds "
             f"{MAX_FILE_SIZE_BYTES / 1024 / 1024:.0f} MB. "
-            f"Truncating legacy observations before {OBSERVATION_START}..."
+            f"Considere reduzir POINTS_BY_FREQUENCY ou habilitar truncagem."
         )
-        truncated = truncate_observations(legacy_payload["series"], OBSERVATION_START)
-        legacy_payload["series"] = truncated
-        legacy_size = write_json(output_legacy_path, legacy_payload)
-        print(f"  legacy resized: {legacy_size / 1024:.1f} KB")
 
     # ─── resumo ──────────────────────────────────────────────────────────
     print()
     print("=" * 50)
-    print(f"Done. v2: {v2_size / 1024:.1f} KB · legacy: {legacy_size / 1024:.1f} KB")
+    print(f"Done. v2: {v2_size / 1024:.1f} KB")
     print(f"Last updated: {now_utc}")
 
 
