@@ -1,5 +1,12 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import type { IndicatorsFile } from './types';
+import {
+  AreaChart,
+  Donut,
+  Gauge,
+  HBarSimple,
+  Sparkline,
+} from './components/charts';
 
 /**
  * Hello world tokenizado da Fase 2 — prova quatro coisas de uma vez:
@@ -9,10 +16,18 @@ import type { IndicatorsFile } from './types';
  *   4. TypeScript strict não reclama
  *
  * Fase 3 PR 3a: tipo `IndicatorsFile` agora vem do módulo central de tipos
- * (`src/types/`), espelhando exatamente `data/schema.json`. O dashboard real
- * (Variação D completa) é construído da Fase 4 em diante; este componente
- * é descartado naquele momento.
+ * (`src/types/`), espelhando exatamente `data/schema.json`.
+ *
+ * Fase 3 PR 3b: a seção "Chart Primitives Demo" abaixo dos cards de contagem
+ * renderiza os 5 SVG charts com mock data. Sanity check visual antes da Fase 4
+ * compor estes mesmos componentes em cards reais alimentados por `indicators`.
+ *
+ * O dashboard real (Variação D completa) é construído da Fase 4 em diante;
+ * este componente é descartado naquele momento.
  */
+
+/** Mock series para a demo dos charts — 12 pontos típicos de uma variável % a.a. */
+const MOCK_SERIES: number[] = [3.2, 3.8, 4.1, 4.5, 4.3, 4.9, 5.1, 5.0, 4.8, 4.6, 4.4, 4.2];
 
 type LoadState =
   | { status: 'loading' }
@@ -96,6 +111,63 @@ const muteStyle: CSSProperties = {
   fontFamily: 'var(--font-mono)',
 };
 
+const demoSection: CSSProperties = {
+  marginTop: 'var(--space-8)',
+  paddingTop: 'var(--space-8)',
+  borderTop: 'var(--border-soft)',
+};
+
+const demoSectionLabel: CSSProperties = {
+  fontFamily: 'var(--font-mono)',
+  fontSize: 'var(--fs-label-l)',
+  color: 'var(--ink-mute)',
+  textTransform: 'uppercase',
+  letterSpacing: 'var(--ls-label)',
+  marginBottom: 'var(--space-4)',
+};
+
+const demoTitle: CSSProperties = {
+  fontFamily: 'var(--font-serif)',
+  fontSize: 'var(--fs-section)',
+  fontWeight: 400,
+  letterSpacing: 'var(--ls-section)',
+  marginBottom: 'var(--space-6)',
+};
+
+const demoGrid: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+  gap: 'var(--space-6)',
+};
+
+const demoCard: CSSProperties = {
+  padding: 'var(--space-5)',
+  background: 'var(--bg-panel)',
+  border: 'var(--border-card)',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 'var(--space-3)',
+};
+
+const demoCardLabel: CSSProperties = {
+  fontFamily: 'var(--font-mono)',
+  fontSize: 'var(--fs-label)',
+  color: 'var(--ink-mute)',
+  textTransform: 'uppercase',
+  letterSpacing: 'var(--ls-label)',
+};
+
+const demoCardName: CSSProperties = {
+  fontFamily: 'var(--font-serif)',
+  fontSize: 'var(--fs-card)',
+  letterSpacing: 'var(--ls-card)',
+  color: 'var(--ink)',
+};
+
+const demoCardBody: CSSProperties = {
+  marginTop: 'var(--space-2)',
+};
+
 export default function App(): JSX.Element {
   const [state, setState] = useState<LoadState>({ status: 'loading' });
 
@@ -154,6 +226,60 @@ export default function App(): JSX.Element {
           <span style={counterValue}>{data.events.length}</span>
         </div>
       </div>
+
+      <section style={demoSection} aria-labelledby="charts-demo-title">
+        <div style={demoSectionLabel}>Fase 3 · PR 3b</div>
+        <h2 id="charts-demo-title" style={demoTitle}>
+          Chart Primitives Demo
+        </h2>
+        <div style={demoGrid}>
+          <div style={demoCard}>
+            <span style={demoCardLabel}>Sparkline</span>
+            <span style={demoCardName}>Tendência inline (ledger)</span>
+            <div style={demoCardBody}>
+              <Sparkline series={MOCK_SERIES} accent="var(--group-taxas)" width={280} />
+            </div>
+          </div>
+
+          <div style={demoCard}>
+            <span style={demoCardLabel}>AreaChart</span>
+            <span style={demoCardName}>Spotlight série temporal</span>
+            <div style={demoCardBody}>
+              <AreaChart series={MOCK_SERIES} accent="var(--group-taxas)" width={300} height={140} />
+            </div>
+          </div>
+
+          <div style={demoCard}>
+            <span style={demoCardLabel}>HBarSimple</span>
+            <span style={demoCardName}>Ranking região / metro</span>
+            <div style={demoCardBody}>
+              <HBarSimple
+                label="Northeast"
+                value={418}
+                max={1000}
+                valueLabel="US$ 418k"
+                accent="var(--group-precos)"
+              />
+            </div>
+          </div>
+
+          <div style={demoCard}>
+            <span style={demoCardLabel}>Donut</span>
+            <span style={demoCardName}>Score / composição single</span>
+            <div style={demoCardBody}>
+              <Donut value={34} accent="var(--group-oferta)" />
+            </div>
+          </div>
+
+          <div style={demoCard}>
+            <span style={demoCardLabel}>Gauge</span>
+            <span style={demoCardName}>NAHB HMI estilo</span>
+            <div style={demoCardBody}>
+              <Gauge value={67} centerLabel="67" accent="var(--group-sentimento)" />
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
