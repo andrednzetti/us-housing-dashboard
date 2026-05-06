@@ -1,0 +1,109 @@
+/**
+ * Design tokens — Variação D do Handoff Dissenha Moulding.
+ *
+ * Fonte autoritativa: docs/handoff/dissenha_dashboard/README.md §"Design tokens".
+ *
+ * Esses tokens são consumidos via var(--name) em globals.css e nos componentes
+ * a partir da Fase 4. Mantidos em CSS puro (não CSS-in-JS) para tirar proveito
+ * da herança em cascata e do tema "documento corporativo" da Variação D.
+ */
+
+:root {
+  /* ── Backgrounds ──────────────────────────────────────────────────── */
+  --bg:              #d8d6d1;   /* cinza claro quente — background página */
+  --bg-panel:        #e8e6e0;   /* cards */
+  --bg-panel-alt:    #cfcdc7;   /* divisores e backgrounds secundários */
+  --bg-band:         #0d3d2e;   /* verde marca — headers/footers escuros */
+  --bg-band-soft:    #164a3a;
+
+  /* ── Ink (texto) ──────────────────────────────────────────────────── */
+  --ink:             #1a2a22;   /* texto principal */
+  --ink-soft:        #4a5a52;   /* texto secundário */
+  --ink-mute:        #8a8a83;   /* labels, metadados */
+  --ink-inverse:     #e8e6e0;   /* texto sobre verde escuro */
+
+  /* ── Rules (divisores) ────────────────────────────────────────────── */
+  --rule:            #b8b6b0;   /* divisores principais */
+  --rule-soft:       #c8c6c0;   /* divisores sutis */
+
+  /* ── Accent ───────────────────────────────────────────────────────── */
+  --accent:          #c5673f;   /* laranja queimado — marca */
+  --accent-soft:     #e8c4a8;
+  --accent-dark:     #a04f2a;
+
+  /* ── Sentiment ────────────────────────────────────────────────────── */
+  --pos:             #0d3d2e;   /* deltas positivos = verde marca */
+  --neg:             #a8432b;   /* deltas negativos */
+
+  /* ── Group accents (ledger dots na Variação D) ───────────────────── */
+  --group-taxas:        #c4664a;
+  --group-precos:       #7a9b6e;
+  --group-oferta:       #6b87a8;
+  --group-sentimento:   #a88a4f;
+  --group-macro:        #8a6a8a;
+
+  /* ── Tipografia ───────────────────────────────────────────────────── */
+  --font-serif: 'Source Serif 4', Georgia, serif;
+  --font-sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:  'JetBrains Mono', 'Courier New', monospace;
+
+  /* Escala de tamanhos (rem para acessibilidade) */
+  --fs-hero:    2.875rem;   /* 46px — hero title (serif) */
+  --fs-section: 1.75rem;    /* 28px — section title (serif 24-28px) */
+  --fs-card:    1.375rem;   /* 22px — card title (serif 18-22px) */
+  --fs-big:     3.75rem;    /* 60px — value big (serif) */
+  --fs-medium:  2.25rem;    /* 36px — value medium (serif) */
+  --fs-table:   0.8125rem;  /* 13px — value table (mono 13px) */
+  --fs-body:    0.875rem;   /* 14px — body editorial (serif italic) / body UI (sans 13-14) */
+  --fs-label:   0.5625rem;  /* 9px — label (mono 9-10px uppercase) */
+  --fs-label-l: 0.625rem;   /* 10px — label (mono) */
+
+  /* Pesos */
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
+  /* Letter spacing */
+  --ls-hero:    -0.025em;
+  --ls-section: -0.02em;
+  --ls-card:    -0.01em;
+  --ls-big:     -0.03em;
+  --ls-medium:  -0.02em;
+  --ls-label:   0.18em;     /* mono uppercase labels */
+  --ls-label-l: 0.22em;     /* mono uppercase labels grandes */
+  --ls-wordmk:  0.08em;     /* wordmark Dissenha/Moulding */
+
+  /* Line heights */
+  --lh-hero:     1.05;
+  --lh-tight:    1.2;
+  --lh-normal:   1.45;
+  --lh-editorial: 1.55;     /* serif italic body */
+  --lh-relaxed:  1.7;       /* methodology / footnotes */
+
+  /* ── Espaçamento ──────────────────────────────────────────────────── */
+  --space-1:   0.25rem;     /*  4px */
+  --space-2:   0.5rem;      /*  8px */
+  --space-3:   0.75rem;     /* 12px */
+  --space-4:   1rem;        /* 16px */
+  --space-5:   1.25rem;     /* 20px */
+  --space-6:   1.5rem;      /* 24px */
+  --space-7:   1.75rem;     /* 28px */
+  --space-8:   2rem;        /* 32px */
+  --space-12:  3rem;        /* 48px — outer page padding */
+  --space-16:  4rem;        /* 64px */
+
+  /* Layout */
+  --container-max: 1280px;  /* largura fixa Variação D */
+  --grid-spotlight: 1.7fr 1fr;
+
+  /* Bordas */
+  --border-card:   0.5px solid var(--rule);
+  --border-soft:   0.5px solid var(--rule-soft);
+  --border-stamp:  0.75px solid var(--accent);
+  --radius:        1px;     /* estilo documento, sem arredondamento marcado */
+  --radius-stamp:  1px;
+
+  /* Sombras */
+  --shadow-card:    0 4px 16px rgba(14, 23, 38, 0.08);
+}
