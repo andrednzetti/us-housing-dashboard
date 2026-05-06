@@ -3,10 +3,12 @@
  *
  * Fase 4 PR 4a: shell editorial + hook.
  * Fase 4 PR 4b: QuadroResumido.
- * Fase 4 PR 4c-1: Spotlight (card principal — sem aside ainda).
+ * Fase 4 PR 4c-1: Spotlight card principal isolado.
  * Fase 4 PR 4c-2: Ledger plano + interação Ledger ↔ Spotlight via lift do
  *                  estado `selected` neste componente.
- * Restante (Aside do Spotlight 4c-3, Anexos 4d) em PRs futuros.
+ * Fase 4 PR 4c-3: Spotlight passa a ser wrapper grid 2-col (card + aside
+ *                  com Crônica de eventos + Composição da carteira).
+ * Restante (Anexos 4d) em PR futuro.
  *
  * Histórico:
  *   - Fase 2: hello world tokenizado provando tokens + fonts + JSON fetch
@@ -15,7 +17,8 @@
  *   - Fase 4 PR 4a: shell + hook
  *   - Fase 4 PR 4b: QuadroResumido
  *   - Fase 4 PR 4c-1: Spotlight card principal
- *   - Fase 4 PR 4c-2: Ledger + estado `selected` (este arquivo)
+ *   - Fase 4 PR 4c-2: Ledger + estado `selected`
+ *   - Fase 4 PR 4c-3: Spotlight aside (Crônica + Composição) (este arquivo)
  */
 
 import { useState } from 'react';
@@ -86,7 +89,11 @@ export default function App(): JSX.Element {
           <QuadroResumido file={data} />
           {effectiveSelected && (
             <div style={sectionGapStyle}>
-              <Spotlight indicator={effectiveSelected} />
+              <Spotlight
+                indicator={effectiveSelected}
+                events={data.events}
+                file={data}
+              />
             </div>
           )}
           <div style={sectionGapStyle}>
@@ -97,7 +104,7 @@ export default function App(): JSX.Element {
             />
           </div>
           <div style={placeholderStyle}>
-            Aside do Spotlight · Anexos — próximos PRs (4c-3 · 4d)
+            Anexos (regiões + metros) — próximo PR (4d)
           </div>
         </>
       )}

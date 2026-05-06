@@ -3,6 +3,7 @@ import {
   nextTuesday,
   formatPtBrEditorial,
   formatPtBrNumeric,
+  formatPtBrShort,
   PT_BR_MONTHS_ABBR,
 } from './dates';
 
@@ -74,6 +75,24 @@ describe('formatPtBrNumeric', () => {
 
   it('retorna placeholder em data inválida', () => {
     expect(formatPtBrNumeric(new Date('not-a-date'))).toBe('—');
+  });
+});
+
+describe('formatPtBrShort', () => {
+  it('formata data típica em DD.MMM (sem ano)', () => {
+    expect(formatPtBrShort(new Date('2026-05-05T00:00:00Z'))).toBe('05.MAI');
+  });
+
+  it('zero-padda dia', () => {
+    expect(formatPtBrShort(new Date('2026-01-03T00:00:00Z'))).toBe('03.JAN');
+  });
+
+  it('formata dezembro corretamente', () => {
+    expect(formatPtBrShort(new Date('2026-12-22T23:00:00Z'))).toBe('22.DEZ');
+  });
+
+  it('retorna placeholder em data inválida', () => {
+    expect(formatPtBrShort(new Date('not-a-date'))).toBe('—');
   });
 });
 
