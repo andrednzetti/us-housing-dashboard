@@ -279,6 +279,159 @@ def build_mba_entry(
 
 
 # ---------------------------------------------------------------------------
+# NAHB HMI — Housing Market Index (PR 1b bugfix)
+# ---------------------------------------------------------------------------
+#
+# A série USHMI no FRED retorna vazio há 3+ ciclos consecutivos. Migramos
+# o HMI para scraping direto, no mesmo padrão usado para RMI: um seed
+# hardcoded de pontos âncora bem documentados publicamente + tentativa
+# best-effort de scrape do eyeonhousing.org para enriquecer com releases
+# mensais recentes.
+
+# Seed de pontos âncora — valores aproximados de releases públicos da NAHB.
+# Cobre os principais movimentos macro do indicador (crash COVID, pico
+# do boom imobiliário, queda no ciclo de aperto monetário). Valores
+# rounded-to-nearest da divulgação mensal mais próxima.
+HMI_SEED = {
+    "2020-01-01": 75,   # pré-pandemia
+    "2020-04-01": 30,   # crash COVID — bem documentado
+    "2020-12-01": 86,   # pico pós-COVID
+    "2021-12-01": 84,
+    "2022-06-01": 67,
+    "2022-12-01": 31,   # fundo no ciclo de aperto Fed
+    "2023-12-01": 37,
+    "2024-06-01": 43,
+    "2024-12-01": 46,
+    "2025-06-01": 32,
+    "2025-12-01": 38,   # leitura recente (final 2025)
+}
+
+
+def scrape_nahb_hmi() -> list[dict]:
+    """
+    Tenta enriquecer o seed HMI com releases recentes do eyeonhousing.org.
+
+    Best-effort — falhas no scrape são silenciadas e o seed é usado como
+    fonte primária. Mesmo padrão de scrape_rmi().
+    """
+    scraped_new = False
+    try:
+        print("  [HMI] Trying eyeonhousing.org...")
+        url = "https://eyeonhousing.org/tag/housing-market-index/"
+        resp = requests.get(url, headers=HEADERS, timeout=20)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "lxml")
+
+        # Pattern: "Builder Confidence" or "HMI" mentions in post titles,
+        # capturing index value + month + year.
+        # Aceita: "Builder Confidence Falls 3 Points in March to 47 (2026)"
+        #         "HMI Posts Reading of 47 in March 2026"
+        #         "Builder Sentiment Holds at 47 in March 2026"
+        month_names = (
+            r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|"
+            r"Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|"
+            r"Nov(?:ember)?|Dec(?:ember)?)"
+        )
+        # Vamos extrair value e (mês, ano) separadamente para reduzir
+        # falsos positivos com regex composta.
+        title_re = re.compile(
+            r"(?:HMI|Housing\s+Market\s+Index|"
+            r"Builder\s+(?:Confidence|Sentiment))",
+            re.IGNORECASE,
+        )
+        value_re = re.compile(r"\b(\d{2,3})\b")
+        month_re = re.compile(rf"\b{month_names}\s+(\d{{4}})\b", re.IGNORECASE)
+
+        articles = soup.find_all(
+            ["h2", "h3", "a"], class_=re.compile(r"entry-title|post-title", re.I)
+        )
+        if not articles:
+            articles = soup.find_all("a", href=True)
+
+        for tag in articles:
+            text = tag.get_text(strip=True)
+            if not title_re.search(text):
+                continue
+            m_month = month_re.search(text)
+            m_value = value_re.search(text)
+            if not (m_month and m_value):
+                continue
+            try:
+                value = int(m_value.group(1))
+                # HMI válido vai de 0 a 100; descarta números fora desse range
+                # (anos, número de pontos de queda, etc.)
+                if not 0 <= value <= 100:
+                    continue
+                # Parse mês via lookup
+                month_str = m_month.group(0).split()[0][:3].title()
+                year = int(m_month.group(1))
+                month_map = {
+                    "Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
+                    "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12,
+                }
+                month = month_map.get(month_str)
+                if month is None:
+                    continue
+                date_str = f"{year}-{month:02d}-01"
+                if date_str not in HMI_SEED:
+                    print(f"    Found new HMI value: {value} for {month_str} {year}")
+                    scraped_new = True
+                HMI_SEED[date_str] = value
+            except (ValueError, KeyError):
+                continue
+
+    except Exception as e:
+        print(f"  [HMI] Scrape failed: {e}. Using seed only.")
+
+    if not scraped_new:
+        print("  [HMI] No new monthly values found via scrape; using seed only.")
+
+    observations = [
+        {"date": d, "value": float(HMI_SEED[d])}
+        for d in sorted(HMI_SEED.keys())
+    ]
+    return observations
+
+
+def build_nahb_hmi_entry(observations: list[dict]) -> dict:
+    """Build the full NAHB HMI data entry (v1 schema, like build_rmi_entry)."""
+    latest = observations[-1] if observations else {"date": None, "value": None}
+
+    yoy_change = None
+    mom_change = None
+
+    if len(observations) >= 2:
+        # MoM: comparison with the immediately preceding observation in the seed
+        # (não é estritamente mês-a-mês porque o seed é esparso, mas é o
+        # delta natural da série exposta).
+        curr = observations[-1]["value"]
+        prev = observations[-2]["value"]
+        if prev:
+            mom_change = round(curr - prev, 2)  # delta em pts (HMI é index)
+
+    if len(observations) >= 13:
+        # YoY: ~12 meses atrás
+        curr = observations[-1]["value"]
+        prev_yoy = observations[-13]["value"]
+        if prev_yoy:
+            yoy_change = round(curr - prev_yoy, 2)
+
+    return {
+        "id": "NAHB_HMI",
+        "name": "NAHB Housing Market Index",
+        "group": "sentiment",
+        "unit": "Index (>50 = positive)",
+        "frequency": "Monthly",
+        "source": "NAHB · scrap",
+        "observations": observations,
+        "latest_value": latest["value"],
+        "latest_date": latest["date"],
+        "yoy_change": yoy_change,
+        "mom_change": mom_change,
+    }
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -294,7 +447,16 @@ def main():
 
     time.sleep(1)
 
-    # 2. MBA
+    # 2. NAHB HMI (PR 1b bugfix — substitui USHMI que não existe mais no FRED)
+    print("\nFetching NAHB HMI (Housing Market Index)...")
+    hmi_obs = scrape_nahb_hmi()
+    output["NAHB_HMI"] = build_nahb_hmi_entry(hmi_obs)
+    print(f"  NAHB HMI: {len(hmi_obs)} observations, "
+          f"latest: {output['NAHB_HMI']['latest_value']} ({output['NAHB_HMI']['latest_date']})")
+
+    time.sleep(1)
+
+    # 3. MBA
     print("\nFetching MBA Mortgage Applications...")
     purch_obs, refi_obs = scrape_mba()
     output["MBA_PURCH"] = build_mba_entry(

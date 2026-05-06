@@ -313,7 +313,9 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
     # SENTIMENTO & ATIVIDADE  (3)
     # ──────────────────────────────────────────────────────────────────
     "nahb": {
-        "raw_key": "USHMI",
+        # PR 1b bugfix: USHMI no FRED está retornando vazio há 3+ ciclos.
+        # Migrado para scrape direto (NAHB_HMI gerado em fetch_scraped.py).
+        "raw_key": "NAHB_HMI",
         "group": "sentimento",
         "name": "NAHB Housing Market Index",
         "short": "NAHB HMI",
@@ -321,7 +323,7 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "fmt_spec": {"type": "num", "decimals": 0},
         "delta_unit": "pts",
         "delta_period": "mês",
-        "source": "NAHB via FRED",
+        "source": "NAHB · scrap",
         "why": "Sentimento de construtores. > 50 = otimismo predominante.",
         "sentiment": "positive",
         "up_is_bad": False,
@@ -341,16 +343,20 @@ INDICATORS_META: dict[str, IndicatorMeta] = {
         "up_is_bad": False,
     },
     "pending": {
-        "raw_key": "PHSI",
+        # PR 1b bugfix: PHSI (NAR Pending Home Sales Index) está retornando
+        # vazio do FRED há 3+ ciclos. Substituído por PENLISCOUUS (Pending
+        # Listing Count, Realtor.com via FRED) — série ativa e estável,
+        # mesmo conceito (contratos em formação) com unidade diferente.
+        "raw_key": "PENLISCOUUS",
         "group": "sentimento",
-        "name": "Pending Home Sales",
+        "name": "Pending Listings",
         "short": "PENDING",
-        "unit": "idx",
-        "fmt_spec": {"type": "num", "decimals": 1},
+        "unit": "k",
+        "fmt_spec": {"type": "k"},
         "delta_unit": "%",
         "delta_period": "mês",
-        "source": "NAR via FRED",
-        "why": "Contratos assinados (ainda não fechados). Antecede existing sales em 1-2 meses.",
+        "source": "Realtor.com · FRED",
+        "why": "Listagens em status 'pending' (contratos em formação). Sinal antecedente de demanda real.",
         "sentiment": "positive",
         "up_is_bad": False,
     },

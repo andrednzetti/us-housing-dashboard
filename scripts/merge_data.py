@@ -77,6 +77,17 @@ LEGACY_V1_KEYS = [
     "USHMI", "WPU081", "RMI",
 ]
 
+# Legacy aliases (PR 1b bugfix): app.js tem hardcoded SERIES_ORDER para
+# USHMI e PHSI (vide JS legacy) — mas no merged dict atual essas keys
+# vêm com nomes diferentes (NAHB_HMI scraped + PENLISCOUUS FRED). O alias
+# permite que o legacy file continue tendo `series.USHMI` e `series.PHSI`,
+# preservando a renderização em produção sem tocar em app.js (refator de
+# frontend é Fase 2+).
+LEGACY_KEY_ALIASES = {
+    "USHMI": "NAHB_HMI",
+    "PHSI":  "PENLISCOUUS",
+}
+
 # Schema v1: agrupamento que `app.js` espera (separado do v2 — não muda).
 V1_GROUP_ORDER = ["rates", "supply", "demand", "prices", "sentiment"]
 V1_GROUP_LABELS = {
@@ -413,8 +424,26 @@ def build_legacy_v1(merged_raw: dict, generated_at: str) -> dict:
     Filtra para os 18 IDs que `app.js` referencia. Mantém a estrutura
     `{last_updated, total_series, groups, series}` exatamente como o
     `merge_data.py` original produzia.
+
+    Aplica aliases definidos em `LEGACY_KEY_ALIASES` para preservar chaves
+    legadas que não existem mais no merge raw (ex.: USHMI -> NAHB_HMI,
+    PHSI -> PENLISCOUUS), permitindo que app.js continue renderizando
+    sem mudança de código.
     """
-    series = {k: merged_raw[k] for k in LEGACY_V1_KEYS if k in merged_raw}
+    series: dict = {}
+    for legacy_key in LEGACY_V1_KEYS:
+        if legacy_key in merged_raw:
+            series[legacy_key] = merged_raw[legacy_key]
+            continue
+        # Tenta alias se o legacy_key não vier nativo do merge atual.
+        alias_target = LEGACY_KEY_ALIASES.get(legacy_key)
+        if alias_target and alias_target in merged_raw:
+            # Copia entrada do alias mas sobrescreve `id` para o nome legado
+            # (preserva contrato: app.js itera SERIES_ORDER e espera
+            # data.series[KEY].id === KEY em alguns lugares).
+            entry = dict(merged_raw[alias_target])
+            entry["id"] = legacy_key
+            series[legacy_key] = entry
 
     group_counts: dict[str, int] = {}
     for entry in series.values():
@@ -489,12 +518,32 @@ def main() -> None:
     if not previous:
         previous = load_previous_indicators(output_v2_path)
     fallbacks = apply_fallback(merged, previous)
-    if fallbacks:
+
+    # Log honesto: distingue 3 casos (todos OK / fallback recuperou / sem cobertura).
+    # Antes do PR 1b bugfix, a lista vazia era reportada como "all present", o
+    # que mascarava o caso onde algumas chaves estavam ausentes E também
+    # ausentes do previous.
+    all_raw_keys = {meta["raw_key"] for meta in INDICATORS_META.values()}
+    missing_keys = all_raw_keys - set(merged.keys())
+
+    if not missing_keys:
+        print("  All raw_keys present in fresh merge — no fallback needed.")
+    elif fallbacks:
         print(f"\n  [WARN] Used last-known-good for {len(fallbacks)} indicators:")
         for ind_id, raw_key, age in fallbacks:
             print(f"    - {ind_id} ({raw_key}): {age}d old")
+        recovered = {fb[1] for fb in fallbacks}
+        still_missing = missing_keys - recovered
+        if still_missing:
+            print(
+                f"  [ERROR] {len(still_missing)} raw_keys still missing after "
+                f"fallback: {sorted(still_missing)}"
+            )
     else:
-        print("  No fallbacks needed (all expected raw_keys present in fresh merge).")
+        print(
+            f"  [ERROR] {len(missing_keys)} raw_keys missing and no fallback "
+            f"available: {sorted(missing_keys)}"
+        )
 
     # ─── v2 ──────────────────────────────────────────────────────────────
     print("\nBuilding v2 payload...")

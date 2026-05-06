@@ -101,13 +101,17 @@ SERIES = {
         "frequency": "Monthly",
         "source": "National Association of Realtors via FRED",
     },
-    "PHSI": {
-        "id": "PHSI",
-        "name": "Pending Home Sales Index",
+    # PHSI (NAR Pending Home Sales Index) removida no PR 1b bugfix:
+    # série retornava vazio do FRED há 3+ ciclos. Substituída por
+    # PENLISCOUUS (abaixo) — mesmo conceito (contratos em formação),
+    # série ativa e estável da Realtor.com via FRED.
+    "PENLISCOUUS": {
+        "id": "PENLISCOUUS",
+        "name": "Pending Listing Count",
         "group": "demand",
-        "unit": "Index (2001=100)",
+        "unit": "Count",
         "frequency": "Monthly",
-        "source": "National Association of Realtors via FRED",
+        "source": "Realtor.com via FRED",
     },
     "ACTLISCOUUS": {
         "id": "ACTLISCOUUS",
@@ -143,14 +147,9 @@ SERIES = {
         "source": "U.S. Census Bureau via FRED",
     },
     # Group 5 — Sentiment & Costs
-    "USHMI": {
-        "id": "USHMI",
-        "name": "NAHB Housing Market Index (HMI)",
-        "group": "sentiment",
-        "unit": "Index",
-        "frequency": "Monthly",
-        "source": "NAHB via FRED",
-    },
+    # USHMI (NAHB HMI via FRED) removida no PR 1b bugfix: série retornava
+    # vazio do FRED há 3+ ciclos. Migrada para scrape direto em
+    # fetch_scraped.py (NAHB_HMI), mesmo padrão usado para RMI.
     "WPU081": {
         "id": "WPU081",
         "name": "Lumber PPI",
