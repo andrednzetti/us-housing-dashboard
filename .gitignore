@@ -7,3 +7,5 @@ data/fred_raw.json
 data/scraped_raw.json
 .DS_Store
 *.tmp.*
+/frontend@0.0.0
+/tsc
