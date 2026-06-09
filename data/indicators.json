@@ -1,23 +1,22 @@
 {
   "schemaVersion": "2.0",
-  "generatedAt": "2026-06-02T18:06:17Z",
+  "generatedAt": "2026-06-09T16:32:13Z",
   "indicators": [
     {
       "id": "mortgage30",
       "group": "taxas",
       "name": "Mortgage 30Y Fixa",
       "short": "30Y MORTGAGE",
-      "value": 6.53,
+      "value": 6.48,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.02,
+      "delta": -0.05,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        2.96,
         2.93,
         3.02,
         2.98,
@@ -276,7 +275,8 @@
         6.37,
         6.36,
         6.51,
-        6.53
+        6.53,
+        6.48
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -289,17 +289,16 @@
       "group": "taxas",
       "name": "Mortgage 15Y Fixa",
       "short": "15Y MORTGAGE",
-      "value": 5.87,
+      "value": 5.79,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.02,
+      "delta": -0.08,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        2.23,
         2.24,
         2.34,
         2.26,
@@ -558,7 +557,8 @@
         5.72,
         5.71,
         5.85,
-        5.87
+        5.87,
+        5.79
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -653,21 +653,16 @@
       "group": "taxas",
       "name": "Treasury 10Y",
       "short": "10Y UST",
-      "value": 4.45,
+      "value": 4.55,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": -0.11,
+      "delta": 0.1,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        4.45,
-        4.43,
-        4.46,
-        4.48,
-        4.58,
         4.54,
         4.51,
         4.43,
@@ -922,7 +917,12 @@
         4.5,
         4.48,
         4.45,
-        4.45
+        4.45,
+        4.47,
+        4.46,
+        4.49,
+        4.47,
+        4.55
       ],
       "frequency": "Daily",
       "source": "Federal Reserve",
@@ -1439,16 +1439,15 @@
       "group": "oferta",
       "name": "Existing Home Sales (SAAR)",
       "short": "EXISTING",
-      "value": 4020000.0,
+      "value": 4170000.0,
       "unit": "k",
       "fmtSpec": {
         "type": "k"
       },
-      "delta": 0.25,
+      "delta": 3.22,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        4020000.0,
         4040000.0,
         3980000.0,
         4030000.0,
@@ -1460,7 +1459,8 @@
         4020000.0,
         4130000.0,
         4010000.0,
-        4020000.0
+        4040000.0,
+        4170000.0
       ],
       "frequency": "Monthly",
       "source": "NAR via FRED",
@@ -1636,17 +1636,16 @@
       "group": "oferta",
       "name": "Active Listings",
       "short": "LISTINGS",
-      "value": 1002935.0,
+      "value": 1058693.0,
       "unit": "count",
       "fmtSpec": {
         "type": "num",
         "decimals": 0
       },
-      "delta": 5.81,
+      "delta": 5.56,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        447670.0,
         492432.0,
         546697.0,
         574649.0,
@@ -1705,7 +1704,8 @@
         912696.0,
         915717.0,
         947866.0,
-        1002935.0
+        1002935.0,
+        1058693.0
       ],
       "frequency": "Monthly",
       "source": "Realtor.com via FRED",
@@ -1793,16 +1793,15 @@
       "group": "sentimento",
       "name": "Pending Listings",
       "short": "PENDING",
-      "value": 467523.0,
+      "value": 508200.0,
       "unit": "k",
       "fmtSpec": {
         "type": "k"
       },
-      "delta": 8.23,
+      "delta": 8.7,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        655556.0,
         659596.0,
         635414.0,
         629547.0,
@@ -1861,7 +1860,8 @@
         312588.0,
         383922.0,
         431986.0,
-        467523.0
+        467523.0,
+        508200.0
       ],
       "frequency": "Monthly",
       "source": "Realtor.com · FRED",
@@ -1884,7 +1884,6 @@
       "deltaUnit": "pp",
       "deltaPeriod": "mês",
       "series": [
-        6.1,
         5.8,
         5.9,
         5.4,
@@ -1942,6 +1941,7 @@
         4.4,
         4.3,
         4.4,
+        4.3,
         4.3,
         4.3
       ],
