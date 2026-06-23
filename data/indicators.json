@@ -1,23 +1,22 @@
 {
   "schemaVersion": "2.0",
-  "generatedAt": "2026-06-16T18:27:23Z",
+  "generatedAt": "2026-06-23T16:27:29Z",
   "indicators": [
     {
       "id": "mortgage30",
       "group": "taxas",
       "name": "Mortgage 30Y Fixa",
       "short": "30Y MORTGAGE",
-      "value": 6.52,
+      "value": 6.47,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.04,
+      "delta": -0.05,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        3.02,
         2.98,
         2.9,
         2.88,
@@ -276,7 +275,8 @@
         6.51,
         6.53,
         6.48,
-        6.52
+        6.52,
+        6.47
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -289,17 +289,16 @@
       "group": "taxas",
       "name": "Mortgage 15Y Fixa",
       "short": "15Y MORTGAGE",
-      "value": 5.84,
+      "value": 5.81,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.05,
+      "delta": -0.03,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        2.34,
         2.26,
         2.2,
         2.22,
@@ -558,7 +557,8 @@
         5.85,
         5.87,
         5.79,
-        5.84
+        5.84,
+        5.81
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -653,20 +653,16 @@
       "group": "taxas",
       "name": "Treasury 10Y",
       "short": "10Y UST",
-      "value": 4.48,
+      "value": 4.46,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": -0.07,
+      "delta": 0.01,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        4.41,
-        4.46,
-        4.46,
-        4.37,
         4.4,
         4.51,
         4.49,
@@ -922,7 +918,11 @@
         4.53,
         4.55,
         4.45,
-        4.48
+        4.48,
+        4.47,
+        4.43,
+        4.49,
+        4.46
       ],
       "frequency": "Daily",
       "source": "Federal Reserve",
