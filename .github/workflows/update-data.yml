@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write   # necessário p/ disparar o deploy-pages via workflow_dispatch
 
 jobs:
   update-data:
@@ -44,5 +45,10 @@ jobs:
           # removida do merge_data.py. O frontend React consome apenas
           # indicators.json. O snapshot histórico do legacy continua na
           # tag v1-vanilla-final.
+          # Pushes feitos com o GITHUB_TOKEN nunca disparam workflows de push
+          # (proteção anti-recursão do GitHub) — por isso o deploy-pages precisa
+          # de dispatch explícito; o "[skip ci]" antigo apenas mascarava isso.
           git add data/indicators.json
-          git diff --cached --quiet && echo "No data changes detected, skipping commit." || (git commit -m "chore: update indicators $(date -u +%Y-%m-%d) [skip ci]" && git push)
+          git diff --cached --quiet && echo "No data changes detected, skipping commit." || (git commit -m "chore: update indicators $(date -u +%Y-%m-%d)" && git push && gh workflow run deploy-pages.yml --ref main)
+        env:
+          GH_TOKEN: ${{ github.token }}
