@@ -1,13 +1,13 @@
 {
   "schemaVersion": "2.0",
-  "generatedAt": "2026-07-14T15:24:30Z",
+  "generatedAt": "2026-07-21T15:45:33Z",
   "indicators": [
     {
       "id": "mortgage30",
       "group": "taxas",
       "name": "Mortgage 30Y Fixa",
       "short": "30Y MORTGAGE",
-      "value": 6.49,
+      "value": 6.55,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
@@ -17,7 +17,6 @@
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        2.78,
         2.8,
         2.77,
         2.87,
@@ -276,7 +275,8 @@
         6.47,
         6.49,
         6.43,
-        6.49
+        6.49,
+        6.55
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -289,17 +289,16 @@
       "group": "taxas",
       "name": "Mortgage 15Y Fixa",
       "short": "15Y MORTGAGE",
-      "value": 5.82,
+      "value": 5.93,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.03,
+      "delta": 0.11,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        2.12,
         2.1,
         2.1,
         2.15,
@@ -558,7 +557,8 @@
         5.81,
         5.84,
         5.79,
-        5.82
+        5.82,
+        5.93
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -653,21 +653,16 @@
       "group": "taxas",
       "name": "Treasury 10Y",
       "short": "10Y UST",
-      "value": 4.56,
+      "value": 4.55,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.07,
+      "delta": -0.01,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        4.26,
-        4.29,
-        4.24,
-        4.26,
-        4.3,
         4.35,
         4.4,
         4.42,
@@ -922,7 +917,12 @@
         4.55,
         4.56,
         4.54,
-        4.56
+        4.56,
+        4.62,
+        4.58,
+        4.55,
+        4.57,
+        4.55
       ],
       "frequency": "Daily",
       "source": "Federal Reserve",
@@ -1196,16 +1196,15 @@
       "group": "oferta",
       "name": "Housing Starts (SAAR)",
       "short": "STARTS",
-      "value": 1177.0,
+      "value": 1427.0,
       "unit": "k",
       "fmtSpec": {
         "type": "k"
       },
-      "delta": -15.45,
+      "delta": 19.02,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        1664.0,
         1600.0,
         1596.0,
         1576.0,
@@ -1263,8 +1262,9 @@
         1385.0,
         1346.0,
         1522.0,
-        1392.0,
-        1177.0
+        1414.0,
+        1199.0,
+        1427.0
       ],
       "frequency": "Monthly",
       "source": "U.S. Census Bureau via FRED",
@@ -1277,16 +1277,15 @@
       "group": "oferta",
       "name": "Building Permits (SAAR)",
       "short": "PERMITS",
-      "value": 1410.0,
+      "value": 1367.0,
       "unit": "k",
       "fmtSpec": {
         "type": "k"
       },
-      "delta": -0.91,
+      "delta": -3.05,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        1662.0,
         1666.0,
         1740.0,
         1649.0,
@@ -1345,7 +1344,8 @@
         1540.0,
         1363.0,
         1423.0,
-        1410.0
+        1410.0,
+        1367.0
       ],
       "frequency": "Monthly",
       "source": "U.S. Census Bureau via FRED",
@@ -1555,16 +1555,15 @@
       "group": "oferta",
       "name": "Housing Completions (SAAR)",
       "short": "COMPLETIONS",
-      "value": 1313.0,
+      "value": 1392.0,
       "unit": "k",
       "fmtSpec": {
         "type": "k"
       },
-      "delta": -8.12,
+      "delta": 3.34,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        1294.0,
         1358.0,
         1329.0,
         1243.0,
@@ -1622,8 +1621,9 @@
         1439.0,
         1324.0,
         1373.0,
-        1429.0,
-        1313.0
+        1454.0,
+        1347.0,
+        1392.0
       ],
       "frequency": "Monthly",
       "source": "U.S. Census Bureau via FRED",
@@ -2080,17 +2080,16 @@
       "group": "macro",
       "name": "Lumber PPI",
       "short": "LUMBER",
-      "value": 280.994,
+      "value": 280.114,
       "unit": "idx",
       "fmtSpec": {
         "type": "num",
         "decimals": 1
       },
-      "delta": 0.29,
+      "delta": -0.36,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        444.3,
         334.813,
         283.26,
         275.379,
@@ -2148,8 +2147,9 @@
         265.325,
         272.101,
         270.805,
-        280.17,
-        280.994
+        280.271,
+        281.139,
+        280.114
       ],
       "frequency": "Monthly",
       "source": "BLS via FRED",
