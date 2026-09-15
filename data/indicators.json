@@ -1,13 +1,13 @@
 {
   "schemaVersion": "2.0",
-  "generatedAt": "2026-09-08T17:48:06Z",
+  "generatedAt": "2026-09-15T18:00:01Z",
   "indicators": [
     {
       "id": "mortgage30",
       "group": "taxas",
       "name": "Mortgage 30Y Fixa",
       "short": "30Y MORTGAGE",
-      "value": 6.71,
+      "value": 6.76,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
@@ -17,7 +17,6 @@
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        2.86,
         2.88,
         3.01,
         2.99,
@@ -276,7 +275,8 @@
         6.67,
         6.65,
         6.66,
-        6.71
+        6.71,
+        6.76
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -289,17 +289,16 @@
       "group": "taxas",
       "name": "Mortgage 15Y Fixa",
       "short": "15Y MORTGAGE",
-      "value": 6.04,
+      "value": 6.09,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.06,
+      "delta": 0.05,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        2.12,
         2.15,
         2.28,
         2.23,
@@ -558,7 +557,8 @@
         5.96,
         5.95,
         5.98,
-        6.04
+        6.04,
+        6.09
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -653,21 +653,16 @@
       "group": "taxas",
       "name": "Treasury 10Y",
       "short": "10Y UST",
-      "value": 4.77,
+      "value": 4.96,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.1,
+      "delta": 0.18,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        4.33,
-        4.26,
-        4.28,
-        4.26,
-        4.24,
         4.22,
         4.23,
         4.28,
@@ -922,7 +917,12 @@
         4.75,
         4.79,
         4.79,
-        4.77
+        4.77,
+        4.78,
+        4.8,
+        4.83,
+        4.95,
+        4.96
       ],
       "frequency": "Daily",
       "source": "Federal Reserve",
@@ -1439,16 +1439,15 @@
       "group": "oferta",
       "name": "Existing Home Sales (SAAR)",
       "short": "EXISTING",
-      "value": 4060000.0,
+      "value": 3980000.0,
       "unit": "k",
       "fmtSpec": {
         "type": "k"
       },
-      "delta": -1.69,
+      "delta": -1.97,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        4030000.0,
         4030000.0,
         4080000.0,
         4110000.0,
@@ -1460,7 +1459,8 @@
         4040000.0,
         4190000.0,
         4130000.0,
-        4060000.0
+        4060000.0,
+        3980000.0
       ],
       "frequency": "Monthly",
       "source": "NAR via FRED",
@@ -1956,17 +1956,16 @@
       "group": "macro",
       "name": "CPI Shelter (12m YoY)",
       "short": "CPI SHELTER",
-      "value": 3.4,
+      "value": 3.44,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 1
       },
-      "delta": -0.08,
+      "delta": 0.04,
       "deltaUnit": "pp",
       "deltaPeriod": "mês",
       "series": [
-        2.82,
         2.83,
         3.15,
         3.52,
@@ -2025,7 +2024,8 @@
         3.64,
         3.62,
         3.48,
-        3.4
+        3.4,
+        3.44
       ],
       "frequency": "Monthly",
       "source": "BLS via FRED · derivado",
@@ -2080,17 +2080,16 @@
       "group": "macro",
       "name": "Lumber PPI",
       "short": "LUMBER",
-      "value": 291.019,
+      "value": 286.633,
       "unit": "idx",
       "fmtSpec": {
         "type": "num",
         "decimals": 1
       },
-      "delta": 3.92,
+      "delta": -1.5,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        283.26,
         275.379,
         288.295,
         299.073,
@@ -2146,10 +2145,11 @@
         265.325,
         272.101,
         270.805,
-        280.271,
-        281.139,
-        280.034,
-        291.019
+        280.362,
+        281.228,
+        280.234,
+        291.011,
+        286.633
       ],
       "frequency": "Monthly",
       "source": "BLS via FRED",
