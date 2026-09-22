@@ -1,23 +1,22 @@
 {
   "schemaVersion": "2.0",
-  "generatedAt": "2026-09-15T18:00:01Z",
+  "generatedAt": "2026-09-22T17:59:31Z",
   "indicators": [
     {
       "id": "mortgage30",
       "group": "taxas",
       "name": "Mortgage 30Y Fixa",
       "short": "30Y MORTGAGE",
-      "value": 6.76,
+      "value": 6.95,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.05,
+      "delta": 0.19,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        2.88,
         3.01,
         2.99,
         3.05,
@@ -276,7 +275,8 @@
         6.65,
         6.66,
         6.71,
-        6.76
+        6.76,
+        6.95
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -289,17 +289,16 @@
       "group": "taxas",
       "name": "Mortgage 15Y Fixa",
       "short": "15Y MORTGAGE",
-      "value": 6.09,
+      "value": 6.26,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.05,
+      "delta": 0.17,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        2.15,
         2.28,
         2.23,
         2.3,
@@ -558,7 +557,8 @@
         5.95,
         5.98,
         6.04,
-        6.09
+        6.09,
+        6.26
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -653,21 +653,16 @@
       "group": "taxas",
       "name": "Treasury 10Y",
       "short": "10Y UST",
-      "value": 4.96,
+      "value": 5.01,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.18,
+      "delta": 0.05,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        4.22,
-        4.23,
-        4.28,
-        4.22,
-        4.17,
         4.1,
         4.05,
         4.08,
@@ -922,7 +917,12 @@
         4.8,
         4.83,
         4.95,
-        4.96
+        4.96,
+        4.97,
+        5.0,
+        5.01,
+        4.94,
+        5.01
       ],
       "frequency": "Daily",
       "source": "Federal Reserve",
@@ -1196,16 +1196,15 @@
       "group": "oferta",
       "name": "Housing Starts (SAAR)",
       "short": "STARTS",
-      "value": 1239.0,
+      "value": 1275.0,
       "unit": "k",
       "fmtSpec": {
         "type": "k"
       },
-      "delta": -12.44,
+      "delta": -2.6,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        1596.0,
         1576.0,
         1587.0,
         1707.0,
@@ -1263,8 +1262,9 @@
         1522.0,
         1414.0,
         1182.0,
-        1415.0,
-        1239.0
+        1439.0,
+        1309.0,
+        1275.0
       ],
       "frequency": "Monthly",
       "source": "U.S. Census Bureau via FRED",
@@ -1277,16 +1277,15 @@
       "group": "oferta",
       "name": "Building Permits (SAAR)",
       "short": "PERMITS",
-      "value": 1433.0,
+      "value": 1394.0,
       "unit": "k",
       "fmtSpec": {
         "type": "k"
       },
-      "delta": 4.29,
+      "delta": -2.72,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        1740.0,
         1649.0,
         1699.0,
         1770.0,
@@ -1345,7 +1344,8 @@
         1423.0,
         1410.0,
         1374.0,
-        1433.0
+        1433.0,
+        1394.0
       ],
       "frequency": "Monthly",
       "source": "U.S. Census Bureau via FRED",
@@ -1555,16 +1555,15 @@
       "group": "oferta",
       "name": "Housing Completions (SAAR)",
       "short": "COMPLETIONS",
-      "value": 1212.0,
+      "value": 1128.0,
       "unit": "k",
       "fmtSpec": {
         "type": "k"
       },
-      "delta": -9.08,
+      "delta": -11.88,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        1329.0,
         1243.0,
         1292.0,
         1412.0,
@@ -1622,8 +1621,9 @@
         1373.0,
         1454.0,
         1328.0,
-        1333.0,
-        1212.0
+        1345.0,
+        1280.0,
+        1128.0
       ],
       "frequency": "Monthly",
       "source": "U.S. Census Bureau via FRED",
@@ -2038,36 +2038,36 @@
       "group": "macro",
       "name": "Affordability Index",
       "short": "AFFORDABILITY",
-      "value": 107.48,
+      "value": 112.25,
       "unit": "idx",
       "fmtSpec": {
         "type": "num",
         "decimals": 1
       },
-      "delta": -3.23,
+      "delta": -3.38,
       "deltaUnit": "pts",
       "deltaPeriod": "tri",
       "series": [
-        159.36,
-        151.54,
-        145.63,
-        113.82,
-        101.28,
-        90.15,
-        100.14,
-        103.73,
-        95.74,
-        92.72,
-        100.97,
-        102.06,
-        101.14,
-        108.66,
-        99.38,
-        103.14,
-        103.37,
+        163.28,
+        155.27,
+        149.21,
+        116.61,
+        103.77,
+        92.37,
+        102.65,
+        106.34,
+        98.15,
+        95.05,
+        102.98,
+        104.09,
+        103.15,
+        110.82,
+        103.79,
+        107.73,
         107.96,
-        110.71,
-        107.48
+        112.76,
+        115.63,
+        112.25
       ],
       "frequency": "Quarterly",
       "source": "Calculado (NAR-style)",
