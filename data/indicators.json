@@ -1,23 +1,22 @@
 {
   "schemaVersion": "2.0",
-  "generatedAt": "2026-09-22T17:59:31Z",
+  "generatedAt": "2026-09-29T19:10:40Z",
   "indicators": [
     {
       "id": "mortgage30",
       "group": "taxas",
       "name": "Mortgage 30Y Fixa",
       "short": "30Y MORTGAGE",
-      "value": 6.95,
+      "value": 7.03,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.19,
+      "delta": 0.08,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        3.01,
         2.99,
         3.05,
         3.09,
@@ -276,7 +275,8 @@
         6.66,
         6.71,
         6.76,
-        6.95
+        6.95,
+        7.03
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -289,17 +289,16 @@
       "group": "taxas",
       "name": "Mortgage 15Y Fixa",
       "short": "15Y MORTGAGE",
-      "value": 6.26,
+      "value": 6.42,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.17,
+      "delta": 0.16,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        2.28,
         2.23,
         2.3,
         2.33,
@@ -558,7 +557,8 @@
         5.98,
         6.04,
         6.09,
-        6.26
+        6.26,
+        6.42
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -653,21 +653,16 @@
       "group": "taxas",
       "name": "Treasury 10Y",
       "short": "10Y UST",
-      "value": 5.01,
+      "value": 5.17,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.05,
+      "delta": 0.16,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        4.1,
-        4.05,
-        4.08,
-        4.04,
-        4.01,
         4.06,
         4.05,
         4.04,
@@ -922,7 +917,12 @@
         5.0,
         5.01,
         4.94,
-        5.01
+        5.01,
+        4.96,
+        4.96,
+        5.11,
+        5.18,
+        5.17
       ],
       "frequency": "Daily",
       "source": "Federal Reserve",
@@ -1277,12 +1277,12 @@
       "group": "oferta",
       "name": "Building Permits (SAAR)",
       "short": "PERMITS",
-      "value": 1394.0,
+      "value": 1403.0,
       "unit": "k",
       "fmtSpec": {
         "type": "k"
       },
-      "delta": -2.72,
+      "delta": -2.09,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
@@ -1345,7 +1345,7 @@
         1410.0,
         1374.0,
         1433.0,
-        1394.0
+        1403.0
       ],
       "frequency": "Monthly",
       "source": "U.S. Census Bureau via FRED",
@@ -1358,16 +1358,15 @@
       "group": "oferta",
       "name": "New Home Sales (SAAR)",
       "short": "NEW SALES",
-      "value": 607.0,
+      "value": 684.0,
       "unit": "k",
       "fmtSpec": {
         "type": "k"
       },
-      "delta": -10.47,
+      "delta": 6.38,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        688.0,
         733.0,
         689.0,
         782.0,
@@ -1424,9 +1423,10 @@
         630.0,
         659.0,
         641.0,
-        630.0,
-        678.0,
-        607.0
+        636.0,
+        672.0,
+        643.0,
+        684.0
       ],
       "frequency": "Monthly",
       "source": "U.S. Census Bureau via FRED",
@@ -1473,17 +1473,16 @@
       "group": "oferta",
       "name": "Months of Supply",
       "short": "SUPPLY",
-      "value": 9.6,
+      "value": 8.5,
       "unit": "meses",
       "fmtSpec": {
         "type": "num",
         "decimals": 1
       },
-      "delta": 1.1,
+      "delta": -0.5,
       "deltaUnit": "m",
       "deltaPeriod": "mês",
       "series": [
-        6.6,
         6.1,
         6.7,
         6.0,
@@ -1540,9 +1539,10 @@
         9.3,
         8.7,
         9.0,
-        9.3,
-        8.5,
-        9.6
+        9.2,
+        8.6,
+        9.0,
+        8.5
       ],
       "frequency": "Monthly",
       "source": "U.S. Census Bureau via FRED",
