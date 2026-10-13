@@ -1,23 +1,22 @@
 {
   "schemaVersion": "2.0",
-  "generatedAt": "2026-10-06T19:20:12Z",
+  "generatedAt": "2026-10-13T20:07:14Z",
   "indicators": [
     {
       "id": "mortgage30",
       "group": "taxas",
       "name": "Mortgage 30Y Fixa",
       "short": "30Y MORTGAGE",
-      "value": 7.28,
+      "value": 7.4,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.25,
+      "delta": 0.12,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        3.05,
         3.09,
         3.14,
         3.09,
@@ -276,7 +275,8 @@
         6.76,
         6.95,
         7.03,
-        7.28
+        7.28,
+        7.4
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -289,17 +289,16 @@
       "group": "taxas",
       "name": "Mortgage 15Y Fixa",
       "short": "15Y MORTGAGE",
-      "value": 6.6,
+      "value": 6.73,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.18,
+      "delta": 0.13,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        2.3,
         2.33,
         2.37,
         2.35,
@@ -558,7 +557,8 @@
         6.09,
         6.26,
         6.42,
-        6.6
+        6.6,
+        6.73
       ],
       "frequency": "Weekly",
       "source": "Freddie Mac",
@@ -653,20 +653,16 @@
       "group": "taxas",
       "name": "Treasury 10Y",
       "short": "10Y UST",
-      "value": 5.28,
+      "value": 5.22,
       "unit": "%",
       "fmtSpec": {
         "type": "pct",
         "decimals": 2
       },
-      "delta": 0.11,
+      "delta": -0.02,
       "deltaUnit": "pp",
       "deltaPeriod": "sem",
       "series": [
-        4.14,
-        4.15,
-        4.12,
-        4.16,
         4.18,
         4.2,
         4.15,
@@ -922,7 +918,11 @@
         5.26,
         5.29,
         5.24,
-        5.28
+        5.28,
+        5.31,
+        5.27,
+        5.28,
+        5.22
       ],
       "frequency": "Daily",
       "source": "Federal Reserve",
@@ -1439,16 +1439,15 @@
       "group": "oferta",
       "name": "Existing Home Sales (SAAR)",
       "short": "EXISTING",
-      "value": 3980000.0,
+      "value": 3990000.0,
       "unit": "k",
       "fmtSpec": {
         "type": "k"
       },
-      "delta": -1.97,
+      "delta": 1.53,
       "deltaUnit": "%",
       "deltaPeriod": "mês",
       "series": [
-        4030000.0,
         4080000.0,
         4110000.0,
         4090000.0,
@@ -1460,7 +1459,8 @@
         4190000.0,
         4130000.0,
         4060000.0,
-        3980000.0
+        3930000.0,
+        3990000.0
       ],
       "frequency": "Monthly",
       "source": "NAR via FRED",
